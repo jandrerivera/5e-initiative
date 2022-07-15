@@ -12,6 +12,101 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
+enum CharacterType {
+    PC
+    NPC
+    MONSTER
+}
+
+model Character {
+    id         String  @id @default(cuid())
+    name       String
+    playerName String?
+
+    type       CharacterType
+    isFriendly Boolean       @default(true)
+    isDead     Boolean       @default(false)
+
+    userId    String
+    createdBy User   @relation(fields: [userId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+
+    avatar           String?
+    race             String?
+    characterClass   String?
+    subclass         String?
+    level            Int?
+    experiencePoints Int?
+    currentHp        Int
+    hpMax            Int
+    tempHP           Int     @default(0)
+    ac               Int
+    spellSave        Int?
+    inspiration      Boolean @default(false)
+    initiative       Int?
+    speed            Int
+    creatureSize     String?
+    speciesType      String?
+    alignment        String?
+    challengeRating  String?
+    source           String?
+
+    abilityScores CharacterAbilities[]
+    skillScores   CharacterSkills[]
+}
+
+enum Abilities {
+    STR
+    DEX
+    CON
+    INT
+    WIS
+    CHA
+}
+
+model CharacterAbilities {
+    id          String    @id @default(cuid())
+    characterId String
+    character   Character @relation(fields: [characterId], references: [id])
+
+    ability    Abilities
+    score      Int
+    proficient Boolean
+}
+
+enum Skills {
+    Acrobatics
+    AnimalHandling
+    Arcana
+    Athletics
+    Deception
+    History
+    Insight
+    Intimidation
+    Investigation
+    Medicine
+    Nature
+    Perception
+    Performance
+    Persuasion
+    Religion
+    SleightOfHand
+    Stealth
+    Survival
+}
+
+model CharacterSkills {
+    id          String    @id @default(cuid())
+    characterId String
+    character   Character @relation(fields: [characterId], references: [id])
+
+    skill      Skills
+    proficient Boolean @default(false)
+    expertise  Boolean @default(false)
+}
+
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
@@ -40,13 +135,14 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String      @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?     @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
+    characters    Character[]
 }
 
 model VerificationToken {
