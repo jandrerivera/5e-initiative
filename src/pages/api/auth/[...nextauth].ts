@@ -5,6 +5,7 @@ import GithubProvider from 'next-auth/providers/github';
 // Prisma adapter for NextAuth, optional and can be removed
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '../../../server/db/client';
+
 import { env } from '../../../server/env';
 
 export const authOptions: NextAuthOptions = {
@@ -20,6 +21,26 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.DISCORD_CLIENT_SECRET,
     }),
   ],
+  session: {
+    strategy: 'jwt',
+  },
+  // callbacks: {
+  //   async redirect({ url, baseUrl }) {
+  //     console.log(url, baseUrl);
+  //     // Allows relative callback URLs
+  //     if (url.startsWith('/')) return `${baseUrl}${url}`;
+  //     // Allows callback URLs on the same origin
+  //     else if (new URL(url).origin === baseUrl) return url;
+  //     return baseUrl;
+  //   },
+  // },
+  // pages: {
+  //   signIn: '/auth/signin',
+  //   signOut: '/auth/signout',
+  //   error: '/auth/error', // Error code passed in query string as ?error=
+  //   verifyRequest: '/auth/verify-request', // (used for check email message)
+  //   newUser: '/auth/new-user', // New users will be directed here on first sign in (leave the property out if not of interest)
+  // },
 };
 
 export default NextAuth(authOptions);
