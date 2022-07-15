@@ -1,17 +1,40 @@
 // src/pages/_app.tsx
-import { withTRPC } from '@trpc/next';
-import type { AppRouter } from '../server/router';
-import type { AppType } from 'next/dist/shared/lib/utils';
-import superjson from 'superjson';
-import { SessionProvider } from 'next-auth/react';
-import '../styles/globals.css';
-import Layout from '../components/Layout';
+import type { ReactElement, ReactNode } from 'react';
 
-const MyApp: AppType = ({ Component, pageProps: { session, ...pageProps } }) => {
+import type { NextPage } from 'next';
+import type { AppProps } from 'next/app';
+import type { AppType } from 'next/dist/shared/lib/utils';
+
+import { withTRPC } from '@trpc/next';
+import superjson from 'superjson';
+import type { AppRouter } from '../server/router';
+import { SessionProvider } from 'next-auth/react';
+
+import Layout from '../components/Layout';
+import ProtectedRoute from '../components/ProtectedRoute';
+
+import '../styles/globals.css';
+
+export type ProtectedNextPage = NextPage & {
+  requireAuth: boolean;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: ProtectedNextPage;
+};
+
+const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppPropsWithLayout) => {
   return (
     <SessionProvider session={session}>
       <Layout>
-        <Component {...pageProps} />
+        {Component.requireAuth ? (
+          <ProtectedRoute>
+            <Component {...pageProps} />
+          </ProtectedRoute>
+        ) : (
+          // public page
+          <Component {...pageProps} />
+        )}
       </Layout>
     </SessionProvider>
   );

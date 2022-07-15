@@ -1,8 +1,10 @@
-import type { ReactElement } from 'react';
-import Navigation from './Navigation';
-import { trpc } from '../utils/trpc';
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
+import { ReactElement } from 'react';
+import Navigation from './Navigation';
+import { GetServerSideProps } from 'next';
+import { useRouter } from 'next/router';
+
+const protectedRoutes = ['/test', '/characters'];
 
 const Layout = ({ children }: { children: ReactElement }) => {
   return (
@@ -12,4 +14,9 @@ const Layout = ({ children }: { children: ReactElement }) => {
     </div>
   );
 };
+
 export default Layout;
+
+const isProtectedRoute = (route: string) => {
+  return protectedRoutes.includes(route);
+};

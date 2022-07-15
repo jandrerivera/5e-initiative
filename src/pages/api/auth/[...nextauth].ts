@@ -21,19 +21,25 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.DISCORD_CLIENT_SECRET,
     }),
   ],
-  session: {
-    strategy: 'jwt',
-  },
-  // callbacks: {
-  //   async redirect({ url, baseUrl }) {
-  //     console.log(url, baseUrl);
-  //     // Allows relative callback URLs
-  //     if (url.startsWith('/')) return `${baseUrl}${url}`;
-  //     // Allows callback URLs on the same origin
-  //     else if (new URL(url).origin === baseUrl) return url;
-  //     return baseUrl;
-  //   },
+  // session: {
+  //   strategy: 'jwt',
   // },
+  callbacks: {
+    session({ session, user }) {
+      if (session.user) {
+        session.user.id = user.id;
+      }
+      return session;
+    },
+    // async redirect({ url, baseUrl }) {
+    //   console.log(url, baseUrl);
+    //   // Allows relative callback URLs
+    //   if (url.startsWith('/')) return `${baseUrl}${url}`;
+    //   // Allows callback URLs on the same origin
+    //   else if (new URL(url).origin === baseUrl) return url;
+    //   return baseUrl;
+    // },
+  },
   // pages: {
   //   signIn: '/auth/signin',
   //   signOut: '/auth/signout',
