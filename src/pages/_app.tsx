@@ -1,13 +1,10 @@
 // src/pages/_app.tsx
-import type { ReactElement, ReactNode } from 'react';
-
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
-import type { AppType } from 'next/dist/shared/lib/utils';
 
 import { withTRPC } from '@trpc/next';
 import superjson from 'superjson';
-import type { AppRouter } from '../server/router';
+import type { AppRouter } from '../server/router/trpc';
 import { SessionProvider } from 'next-auth/react';
 
 import Layout from '../components/Layout';

@@ -93,6 +93,6 @@ export const newCharacterSchema = characterSchema.omit({
 
 export const deleteCharacterSchema = characterSchema.pick({ id: true });
 
-export type NewCharacterSchemaType = z.TypeOf<typeof newCharacterSchema>;
 export type CharacterSchemaType = z.TypeOf<typeof characterSchema>;
+export type NewCharacterSchemaType = z.TypeOf<typeof newCharacterSchema>;
 export type DeleteCharacterSchemaType = z.TypeOf<typeof deleteCharacterSchema>;

@@ -21,9 +21,6 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.DISCORD_CLIENT_SECRET,
     }),
   ],
-  // session: {
-  //   strategy: 'jwt',
-  // },
   callbacks: {
     session({ session, user }) {
       if (session.user) {

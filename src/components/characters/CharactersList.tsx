@@ -2,7 +2,7 @@ import { trpc } from '../../utils/trpc';
 import Link from 'next/link';
 
 const CharactersList = () => {
-  const { data, isLoading, refetch } = trpc.useQuery(['character.getAllByUserId']);
+  const { data, isLoading, refetch } = trpc.useQuery(['character.getAllByType']);
   const { mutate, error } = trpc.useMutation('character.delete', { onSuccess: () => refetch() });
 
   if (isLoading) return <>Loading...</>;

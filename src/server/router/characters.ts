@@ -1,35 +1,17 @@
 import { TRPCError } from '@trpc/server';
+import { createProtectedRouter } from './trpc/createProtectedRouter';
 import { z } from 'zod';
-import { createRouter } from './context';
 import {
   newCharacterSchema,
   characterSchema,
   deleteCharacterSchema,
 } from '../../schema/characters';
 
-export const characterRouter = createRouter()
-  .middleware(async ({ ctx, next }) => {
-    // Any queries or mutations after this middleware will
-    // raise an error unless there is a current session
-    if (!ctx.session) {
-      throw new TRPCError({ code: 'UNAUTHORIZED' });
-    }
-    return next({
-      ctx: {
-        ...ctx,
-        // infers that `session` is non-nullable to downstream resolvers
-        session: { ...ctx.session, user: ctx.session.user },
-      },
-    });
-  })
+export const characterRouter = createProtectedRouter()
   .mutation('create', {
     input: newCharacterSchema,
     async resolve({ ctx, input }) {
       const userId = ctx.session.user.id;
-
-      if (!userId) {
-        throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Please log in' });
-      }
 
       const updatedCharacter = await ctx.prisma.character.create({
         data: { ...input, createdById: userId },
@@ -71,21 +53,9 @@ export const characterRouter = createRouter()
       });
     },
   })
-  .query('getAll', {
-    resolve({ ctx }) {
-      /**
-       * For pagination you can have a look at this docs site
-       * @link https://trpc.io/docs/useInfiniteQuery
-       */
-
-      return ctx.prisma.character.findMany();
-    },
-  })
-  .query('getAllByUserId', {
+  .query('getAllByType', {
     async resolve({ ctx }) {
       const userId = ctx.session.user.id;
-
-      if (!userId) return null;
 
       const PCs = await ctx.prisma.character.findMany({
         where: { createdById: userId, AND: { type: 'PC' } },
@@ -101,13 +71,5 @@ export const characterRouter = createRouter()
         PCs,
         NPCs,
       };
-    },
-  })
-  .query('getCountByUserId', {
-    async resolve({ ctx }) {
-      const userId = ctx.session.user.id;
-
-      if (!userId) return null;
-      return ctx.prisma.character.count({ where: { createdById: userId } });
     },
   });
