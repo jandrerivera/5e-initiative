@@ -5,7 +5,7 @@ import { ProtectedNextPage } from '../_app';
 import { prisma } from '../../server/db/client';
 import { trpc } from '../../utils/trpc';
 
-const LazyCharactersList = dynamic(() => import('../../components/CharactersList'), {
+const LazyCharactersList = dynamic(() => import('../../components/characters/CharactersList'), {
   ssr: false,
 });
 

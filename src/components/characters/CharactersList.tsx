@@ -1,4 +1,4 @@
-import { trpc } from '../utils/trpc';
+import { trpc } from '../../utils/trpc';
 import Link from 'next/link';
 
 const CharactersList = () => {

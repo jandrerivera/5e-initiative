@@ -1,25 +1,23 @@
+import { useRouter } from 'next/router';
 import { useId } from 'react';
-import { useForm, SubmitHandler, UseFormRegister, UseFormHandleSubmit } from 'react-hook-form';
-import { NewCharacterSchemaType, UpdateCharacterSchemaType } from '../schema/characters';
-import { trpc } from '../utils/trpc';
+import { useForm, SubmitHandler, UseFormRegister, DeepPartial } from 'react-hook-form';
+import { NewCharacterSchemaType, CharacterSchemaType } from '../../schema/characters';
 
-type FormDataType = UpdateCharacterSchemaType;
+type FormDataType = CharacterSchemaType;
 
-const NewCharacterForm = ({ formData }: { formData: FormDataType }) => {
+type CharacterFormProps = {
+  formData: DeepPartial<FormDataType>;
+  onSubmit: SubmitHandler<FormDataType>;
+};
+
+const CharacterForm = ({ formData, onSubmit }: CharacterFormProps) => {
   const { register, handleSubmit } = useForm<FormDataType>({ defaultValues: formData });
-  const { mutate, error } = trpc.useMutation(['character.update']);
-
-  const onSubmit: SubmitHandler<FormDataType> = (data) => {
-    mutate(data);
-    console.log(data);
-  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      {error && <div>Error: {error.message}</div>}
       <TextInput label='Name' field='name' register={register} />
       <TextInput label='Player Name' field='playerName' register={register} />
-      <TextInput label='' field='avatar' register={register} />
+      <TextInput label='Avatar' field='avatar' register={register} />
       <SelectInput
         label='Character Type'
         field='type'
@@ -180,4 +178,4 @@ const SkillField = ({ field, label, register }: InputFieldProps) => {
   );
 };
 
-export default NewCharacterForm;
+export default CharacterForm;

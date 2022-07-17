@@ -1,5 +1,4 @@
 import { TRPCError } from '@trpc/server';
-import { resolve } from 'path';
 import { z } from 'zod';
 import { createRouter } from './context';
 import {
@@ -23,7 +22,7 @@ export const characterRouter = createRouter()
       },
     });
   })
-  .mutation('createNew', {
+  .mutation('create', {
     input: newCharacterSchema,
     async resolve({ ctx, input }) {
       const userId = ctx.session.user.id;

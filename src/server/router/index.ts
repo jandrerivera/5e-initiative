@@ -3,7 +3,7 @@ import { createRouter } from './context';
 import superjson from 'superjson';
 
 import { authRouter } from './auth';
-import { characterRouter } from './character';
+import { characterRouter } from './characters';
 
 export const appRouter = createRouter()
   .transformer(superjson)
