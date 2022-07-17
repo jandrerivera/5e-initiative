@@ -58,16 +58,6 @@ export const characterRouter = createRouter()
       await ctx.prisma.character.delete({ where: { id } });
     },
   })
-  .query('getAll', {
-    resolve({ ctx }) {
-      /**
-       * For pagination you can have a look at this docs site
-       * @link https://trpc.io/docs/useInfiniteQuery
-       */
-
-      return ctx.prisma.character.findMany();
-    },
-  })
   .query('getById', {
     input: z.object({
       id: z.string(),
@@ -81,12 +71,36 @@ export const characterRouter = createRouter()
       });
     },
   })
-  .query('getAllByUserId', {
+  .query('getAll', {
     resolve({ ctx }) {
+      /**
+       * For pagination you can have a look at this docs site
+       * @link https://trpc.io/docs/useInfiniteQuery
+       */
+
+      return ctx.prisma.character.findMany();
+    },
+  })
+  .query('getAllByUserId', {
+    async resolve({ ctx }) {
       const userId = ctx.session.user.id;
 
       if (!userId) return null;
-      return ctx.prisma.character.findMany({ where: { createdById: userId } });
+
+      const PCs = await ctx.prisma.character.findMany({
+        where: { createdById: userId, AND: { type: 'PC' } },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      const NPCs = await ctx.prisma.character.findMany({
+        where: { createdById: userId, AND: { type: 'NPC' } },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      return {
+        PCs,
+        NPCs,
+      };
     },
   })
   .query('getCountByUserId', {
