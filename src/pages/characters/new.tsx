@@ -1,11 +1,14 @@
-import type { NextPage } from 'next';
-import { trpc } from '../../utils/trpc';
+import NewCharacterForm from '../../components/NewCharacterForm';
+import { ProtectedNextPage } from '../_app';
 
-const CreateNewCharacter: NextPage = () => {
+const NewCharacterPage: ProtectedNextPage = () => {
   return (
     <div>
       <h1 className='text-3xl'>New Character</h1>
+      <NewCharacterForm />
     </div>
   );
 };
-export default CreateNewCharacter;
+export default NewCharacterPage;
+
+NewCharacterPage.requireAuth = true;

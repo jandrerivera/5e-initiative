@@ -2,13 +2,12 @@ import { useSession } from 'next-auth/react';
 
 // import Head from 'next/head';
 
-// import { trpc } from '../utils/trpc';
-
 const Home = () => {
-  // const { data } = trpc.useQuery(['example.hello', { text: 'from tRPC' }]);
-  const { data } = useSession();
+  const { data: session } = useSession();
 
-  return <>Hello, {data ? data.user?.name : 'you'}.</>;
+  if (!session) return <>Please sign in.</>;
+
+  return <>Signed in as {session.user?.name}.</>;
 };
 
 export default Home;

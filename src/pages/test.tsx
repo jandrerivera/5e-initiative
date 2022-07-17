@@ -1,4 +1,6 @@
-const TestPage = () => {
+import { ProtectedNextPage } from './_app';
+
+const TestPage: ProtectedNextPage = () => {
   return (
     <div>
       <h1 className='text-3xl'>Test Page</h1>

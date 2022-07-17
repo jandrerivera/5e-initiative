@@ -1,33 +1,26 @@
-import type { NextPage } from 'next';
-import { useSession } from 'next-auth/react';
+import { GetServerSidePropsContext } from 'next';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { ProtectedNextPage } from '../_app';
+import { prisma } from '../../server/db/client';
 import { trpc } from '../../utils/trpc';
 
-const CharactersPage = () => {
-  const { data, isLoading } = trpc.useQuery(['character.getAllbyUserId']);
+const LazyCharactersList = dynamic(() => import('../../components/CharactersList'), {
+  ssr: false,
+});
 
-  if (isLoading) return <>Loading...</>;
-  if (!data) return <>No Data</>;
-
+const CharactersPage: ProtectedNextPage = ({}) => {
   return (
     <div>
       <h1 className='text-3xl'>Characters</h1>
-      <div className='text-sm py-4'>{data.length} Characters</div>
       <div>
-        <Link href='/character/new'>Add New</Link>
+        <Link href='/characters/new'>Add New</Link>
       </div>
-      <ul>
-        {data.map((character) => (
-          <li key={character.id} className='border p-2'>
-            <div>Name: {character.name}</div>
-            <div>Type: {character.type}</div>
-          </li>
-        ))}
-      </ul>
+      <LazyCharactersList />
     </div>
   );
 };
-export default CharactersPage;
 
 CharactersPage.requireAuth = true;
+
+export default CharactersPage;
