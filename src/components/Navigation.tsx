@@ -24,6 +24,9 @@ const Navigation = () => {
               <Link href='/characters'>Characters</Link>
             </li>
             <li>
+              <Link href='/bestiary'>Bestiary</Link>
+            </li>
+            <li>
               <Link href='/api/auth/signout'>Sign Out</Link>
             </li>
           </>

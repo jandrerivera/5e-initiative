@@ -4,7 +4,7 @@ export const characterSchema = z.object({
   id: z.string().cuid(),
   name: z.string(),
   playerName: z.string().nullable(),
-  type: z.enum(['PC', 'NPC', 'MONSTER']),
+  type: z.enum(['PC', 'NPC']),
   isFriendly: z.boolean(),
   isDead: z.boolean(),
 
@@ -25,10 +25,15 @@ export const characterSchema = z.object({
 
   inspiration: z.boolean(),
   initiative: z.number().int(),
-  speed: z.number().int(),
+
+  speedWalking: z.number().int(),
+  speedClimbing: z.number().int().nullable(),
+  speedFlying: z.number().int().nullable(),
+  speedSwimming: z.number().int().nullable(),
+  speedBurrowing: z.number().int().nullable(),
 
   creatureSize: z.string().nullable(),
-  speciesType: z.string().nullable(),
+  creatureType: z.string().nullable(),
   alignment: z.string().nullable(),
   challengeRating: z.string().nullable(),
   source: z.string().nullable(),

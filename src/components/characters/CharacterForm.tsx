@@ -1,17 +1,23 @@
-import { useRouter } from 'next/router';
-import { useId } from 'react';
-import { useForm, SubmitHandler, UseFormRegister, DeepPartial } from 'react-hook-form';
-import { NewCharacterSchemaType, CharacterSchemaType } from '../../schema/characters';
+import { useForm, SubmitHandler, DeepPartial } from 'react-hook-form';
+import { CharacterSchemaType } from '../../schema/characters';
+import {
+  AbilityScoreField,
+  CheckboxInput,
+  NumberInput,
+  SelectInput,
+  SkillField,
+  TextInput,
+} from '../formInputs';
 
-type FormDataType = CharacterSchemaType;
+type TForm = CharacterSchemaType;
 
 type CharacterFormProps = {
-  formData: DeepPartial<FormDataType>;
-  onSubmit: SubmitHandler<FormDataType>;
+  formData?: DeepPartial<TForm>;
+  onSubmit: SubmitHandler<TForm>;
 };
 
 const CharacterForm = ({ formData, onSubmit }: CharacterFormProps) => {
-  const { register, handleSubmit } = useForm<FormDataType>({ defaultValues: formData });
+  const { register, handleSubmit } = useForm<TForm>({ defaultValues: formData });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -24,7 +30,6 @@ const CharacterForm = ({ formData, onSubmit }: CharacterFormProps) => {
         options={[
           { value: 'PC', label: 'PC' },
           { value: 'NPC', label: 'NPC' },
-          { value: 'Monster', label: 'Monster' },
         ]}
         register={register}
       />
@@ -41,15 +46,21 @@ const CharacterForm = ({ formData, onSubmit }: CharacterFormProps) => {
       <TextInput label='Alignment' field='alignment' register={register} />
 
       <TextInput label='Creature Size' field='creatureSize' register={register} />
-      <TextInput label='Species Type' field='speciesType' register={register} />
+      <TextInput label='Species Type' field='creatureSize' register={register} />
       <TextInput label='Challenge Ration' field='challengeRating' register={register} />
       <TextInput label='Source' field='source' register={register} />
 
       <TextInput label='Max HP' field='hpMax' register={register} />
       <TextInput label='AC' field='ac' register={register} />
       <TextInput label='Spell Save DC' field='spellSave' register={register} />
-      <TextInput label='Speed' field='speed' register={register} />
-      <TextInput label='Initiative Bonus' field='initiative' register={register} />
+
+      <NumberInput label='Walking Speed' field='speedWalking' register={register} />
+      <NumberInput label='Flaying Speed' field='speedFlying' register={register} />
+      <NumberInput label='Swimming Speed' field='speedSwimming' register={register} />
+      <NumberInput label='Climbing Speed' field='speedClimbing' register={register} />
+      <NumberInput label='Burrowing Speed' field='speedBurrowing' register={register} />
+
+      <NumberInput label='Initiative Bonus' field='initiative' register={register} />
 
       <CheckboxInput label='Inspiration' field='inspiration' register={register} />
 
@@ -81,100 +92,6 @@ const CharacterForm = ({ formData, onSubmit }: CharacterFormProps) => {
 
       <button>Submit</button>
     </form>
-  );
-};
-
-type InputFieldProps = {
-  field: keyof FormDataType;
-  label: string;
-  register: UseFormRegister<FormDataType>;
-};
-
-const TextInput = ({ field, label, register }: InputFieldProps) => {
-  const id = useId();
-  return (
-    <div>
-      <label htmlFor={id}>{label}</label>
-      <input id={id} type='text' {...register(field)}></input>
-    </div>
-  );
-};
-
-const NumberInput = ({ field, label, register }: InputFieldProps) => {
-  const id = useId();
-  return (
-    <div>
-      <label htmlFor={id}>{label}</label>
-      <input
-        id={id}
-        type='number'
-        {...register(field, {
-          valueAsNumber: true,
-        })}
-      ></input>
-    </div>
-  );
-};
-
-const CheckboxInput = ({ field, label, register }: InputFieldProps) => {
-  const id = useId();
-  return (
-    <div>
-      <label htmlFor={id}>{label}</label>
-      <input id={id} type='checkbox' {...register(field)}></input>
-    </div>
-  );
-};
-
-type SelectInputProps = InputFieldProps & {
-  options: { value: string; label: string }[];
-};
-
-const SelectInput = ({ field, label, options, register }: SelectInputProps) => {
-  const id = useId();
-  return (
-    <div>
-      <label htmlFor={id}>{label}</label>
-      <select {...register(field)}>
-        {options.map(({ value, label }, i) => (
-          <option key={i} value={value}>
-            {label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-};
-
-const AbilityScoreField = ({ field, label, register }: InputFieldProps) => {
-  const scoreID = useId();
-  const bonusId = useId();
-
-  const bonus = `${field}Bonus` as typeof field;
-
-  return (
-    <div>
-      <label htmlFor={scoreID}>{label}</label>
-      <input id={scoreID} type='text' {...register(field)}></input>
-      <label htmlFor={bonusId}>Save Bonus</label>
-      <input id={bonusId} type='checkbox' {...register(bonus)}></input>
-    </div>
-  );
-};
-
-const SkillField = ({ field, label, register }: InputFieldProps) => {
-  const proficiencyId = useId();
-  const expertiseId = useId();
-
-  const expertise = `${field.replace('Proficient', 'Expertise')}` as typeof field;
-
-  return (
-    <div>
-      <label htmlFor={proficiencyId}>{label}</label>
-      <input id={proficiencyId} type='checkbox' {...register(field)}></input>
-      <label htmlFor={expertiseId}>Expertise</label>
-      <input id={expertiseId} type='checkbox' {...register(expertise)}></input>
-    </div>
   );
 };
 

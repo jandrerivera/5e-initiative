@@ -39,13 +39,13 @@ export type InferQueryOutput<TRouteKey extends TQuery> = inferProcedureOutput<
   AppRouter['_def']['queries'][TRouteKey]
 >;
 
-// /**
-//  * This is a helper method to infer the input of a query resolver
-//  * @example type HelloInput = InferQueryInput<'hello'>
-//  */
-// export type InferQueryInput<TRouteKey extends TQuery> = inferProcedureInput<
-//   AppRouter['_def']['queries'][TRouteKey]
-// >
+/**
+ * This is a helper method to infer the input of a query resolver
+ * @example type HelloInput = InferQueryInput<'hello'>
+ */
+export type InferQueryInput<TRouteKey extends TQuery> = inferProcedureInput<
+  AppRouter['_def']['queries'][TRouteKey]
+>;
 
 // /**
 //  * This is a helper method to infer the output of a mutation resolver

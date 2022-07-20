@@ -6,16 +6,8 @@ generator client {
 }
 
 datasource db {
-    // provider = "sqlite"
-    // url      = "file:./db.sqlite"
     provider = "postgresql"
     url      = env("DATABASE_URL")
-}
-
-enum CharacterType {
-    PC
-    NPC
-    MONSTER
 }
 
 model Character {
@@ -44,12 +36,18 @@ model Character {
     spellSave        Int     @default(0)
     inspiration      Boolean @default(false)
     initiative       Int     @default(0)
-    speed            Int     @default(30)
-    creatureSize     String?
-    speciesType      String?
-    alignment        String?
-    challengeRating  String?
-    source           String?
+
+    speedWalking   Int  @default(30)
+    speedClimbing  Int? @default(0)
+    speedFlying    Int? @default(0)
+    speedSwimming  Int? @default(0)
+    speedBurrowing Int? @default(0)
+
+    creatureSize    String?
+    creatureType    String?
+    alignment       String?
+    challengeRating String?
+    source          String?
 
     str      Int     @default(10)
     strBonus Boolean
@@ -102,6 +100,127 @@ model Character {
     skillSurvivalExpertise        Boolean @default(false)
 }
 
+enum CharacterType {
+    PC
+    NPC
+}
+
+model Creatures {
+    id   String @id @default(cuid())
+    name String
+
+    createdById String
+    createdBy   User   @relation(fields: [createdById], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    avatar String?
+
+    creatureSize    String?
+    creatureType    String?
+    alignment       String?
+    challengeRating String?
+    source          String?
+
+    hpMax   Int     @default(0)
+    ac      Int     @default(0)
+    hitDice String?
+
+    speedWalking   Int  @default(30)
+    speedClimbing  Int? @default(0)
+    speedFlying    Int? @default(0)
+    speedSwimming  Int? @default(0)
+    speedBurrowing Int? @default(0)
+
+    str Int @default(10)
+    dex Int @default(10)
+    con Int @default(10)
+    int Int @default(10)
+    wis Int @default(10)
+    cha Int @default(10)
+
+    savingThrows          CreatureSavingThrows[]
+    skills                CreatureSkills[]
+    conditionImmunities   CreatureConditionImmunities[]
+    damageImmunities      CreatureDamageImmunities[]
+    damageResistances     CreatureDamageResistances[]
+    damageVulnerabilities CreatureDamageVulnerabilities[]
+    senses                CreatureSenses[]
+    languages             CreatureLanguages[]
+}
+
+model CreatureSavingThrows {
+    id   String @id @default(cuid())
+    type String
+
+    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String?
+}
+
+model CreatureSkills {
+    id         String  @id @default(cuid())
+    type       String
+    proficient Boolean @default(false)
+    expertise  Boolean @default(false)
+
+    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String?
+}
+
+model CreatureConditionImmunities {
+    id   String @id @default(cuid())
+    type String
+
+    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String?
+}
+
+model CreatureDamageImmunities {
+    id   String @id @default(cuid())
+    type String
+
+    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String?
+}
+
+model CreatureDamageResistances {
+    id   String @id @default(cuid())
+    type String
+
+    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String?
+}
+
+model CreatureDamageVulnerabilities {
+    id   String @id @default(cuid())
+    type String
+
+    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String?
+}
+
+model CreatureSenses {
+    id       String @id @default(cuid())
+    type     String
+    distance Int
+
+    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String?
+}
+
+model CreatureLanguages {
+    id           String  @id @default(cuid())
+    languageName String
+    speaks       Boolean
+    understands  Boolean
+    exception    String?
+    distance     Int? //ONLY used for Telepathy
+
+    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String?
+}
+
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
@@ -139,6 +258,7 @@ model User {
     sessions      Session[]
 
     characters Character[]
+    creatures  Creatures[]
 }
 
 model VerificationToken {

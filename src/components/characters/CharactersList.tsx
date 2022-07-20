@@ -2,7 +2,7 @@ import { trpc } from '../../utils/trpc';
 import Link from 'next/link';
 
 const CharactersList = () => {
-  const { data, isLoading, refetch } = trpc.useQuery(['character.getAllByType']);
+  const { data, isLoading, refetch } = trpc.useQuery(['character.get-all-grouped-by-type']);
   const { mutate, error } = trpc.useMutation('character.delete', { onSuccess: () => refetch() });
 
   if (isLoading) return <>Loading...</>;
@@ -47,7 +47,4 @@ const CharactersList = () => {
   );
 };
 
-export const List = () => {
-  return <div>CharactersList</div>;
-};
 export default CharactersList;

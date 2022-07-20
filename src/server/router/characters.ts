@@ -40,7 +40,7 @@ export const characterRouter = createProtectedRouter()
       await ctx.prisma.character.delete({ where: { id } });
     },
   })
-  .query('getById', {
+  .query('get-unique-by-id', {
     input: z.object({
       id: z.string(),
     }),
@@ -53,7 +53,7 @@ export const characterRouter = createProtectedRouter()
       });
     },
   })
-  .query('getAllByType', {
+  .query('get-all-grouped-by-type', {
     async resolve({ ctx }) {
       const userId = ctx.session.user.id;
 
