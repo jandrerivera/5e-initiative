@@ -15,12 +15,12 @@ const EditCharacterPage: ProtectedNextPage = () => {
   const { mutate, error } = trpc.useMutation(['creatures.update']);
 
   const onSubmit: SubmitHandler<CreatureSchemaType> = (data) => {
-    // mutate(data);
+    mutate(data);
     console.log(data);
   };
 
   if (!data) return <>Character not found</>;
-  console.log(data);
+  // console.log(data);
   return (
     <div>
       <h1 className='text-3xl'>Edit Character</h1>

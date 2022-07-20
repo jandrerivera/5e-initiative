@@ -45,9 +45,9 @@ export const creatureSchema = z.object({
 export type CreatureSchemaType = z.TypeOf<typeof creatureSchema>;
 
 export const creatureSavingThrowsSchema = z.object({
-  id: z.string().cuid(),
+  id: z.string().cuid().optional(),
   type: z.string(),
-  creatureId: z.string().nullable(),
+  // creatureId: z.string().nullable(),
 });
 export type CreatureSavingThrowsSchemaType = z.TypeOf<typeof creatureSavingThrowsSchema>;
 

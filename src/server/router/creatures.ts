@@ -10,10 +10,12 @@ import { InferQueryInput } from '../../utils/trpc';
 
 export const creaturesRouter = createProtectedRouter()
   .mutation('update', {
-    input: creatureSchema,
+    input: creatureSchemaWithJoinsSchema,
 
     async resolve({ ctx, input }) {
-      const { id } = input;
+      const { id, conditionImmunities } = input;
+
+      await ctx.prisma.creatureConditionImmunities.deleteMany({ where: { creatureId: id } });
 
       const updatedCharacter = await ctx.prisma.creatures.update({
         where: { id },
@@ -21,7 +23,7 @@ export const creaturesRouter = createProtectedRouter()
           ...input,
           conditionImmunities: {
             createMany: {
-              data: [{ type: 'derp' }],
+              data: [...conditionImmunities],
             },
           },
         },

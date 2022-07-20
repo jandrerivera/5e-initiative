@@ -1,4 +1,12 @@
-import { useForm, SubmitHandler, DeepPartial, useFieldArray } from 'react-hook-form';
+import {
+  useForm,
+  SubmitHandler,
+  DeepPartial,
+  useFieldArray,
+  UseFormRegister,
+  Path,
+  Control,
+} from 'react-hook-form';
 import { CreatureSchemaWithJoinsType } from '../../schema/creatures';
 import { InferQueryOutput } from '../../utils/trpc';
 
@@ -61,11 +69,18 @@ const CreatureForm = ({ formData, onSubmit }: CreatureFormProps) => {
 
 export default CreatureForm;
 
-const SkillFields = ({ data, control, register }) => {
+type InputFieldProps<T> = {
+  data?: DeepPartial<T>;
+  control: Control<T, object>;
+  register: UseFormRegister<T>;
+};
+
+const SkillFields = ({ data, control, register }: InputFieldProps<TForm>) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: 'conditionImmunities', // unique name for your Field Array
   });
+
   return (
     <ul className='border p-2'>
       {fields.map((field, i) => (

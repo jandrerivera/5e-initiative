@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import { Path, UseFormRegister } from 'react-hook-form';
 
-//www.thisdot.co/blog/how-to-create-reusable-form-components-with-react-hook-forms-and-typescript
+//Typescript from here: www.thisdot.co/blog/how-to-create-reusable-form-components-with-react-hook-forms-and-typescript
 
 type InputFieldProps<TFormSchema> = {
   field: Path<TFormSchema>;
