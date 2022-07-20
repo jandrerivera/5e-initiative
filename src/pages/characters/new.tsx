@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { SubmitHandler } from 'react-hook-form';
 import CharacterForm from '../../components/characters/CharacterForm';
 import { NewCharacterSchemaType } from '../../schema/characters';
 import { trpc } from '../../utils/trpc';
@@ -13,6 +13,10 @@ export const defaultValues = {
   spellSave: 0,
   initiative: 0,
   speedWalking: 30,
+  speedFlying: 30,
+  speedSwimming: 30,
+  speedClimbing: 30,
+  speedBurrowing: 30,
   str: 10,
   dex: 10,
   con: 10,

@@ -2,8 +2,8 @@ import { trpc } from '../../utils/trpc';
 import Link from 'next/link';
 
 const CreaturesList = () => {
-  const { data, isLoading, refetch } = trpc.useQuery(['creatures.get-all']);
-  const { mutate, error } = trpc.useMutation('character.delete', { onSuccess: () => refetch() });
+  const { data, isLoading, refetch } = trpc.useQuery(['bestiary.get-all']);
+  const { mutate, error } = trpc.useMutation('bestiary.delete', { onSuccess: () => refetch() });
 
   if (isLoading) return <>Loading...</>;
   if (!data) return <>No Data</>;
@@ -14,9 +14,9 @@ const CreaturesList = () => {
     <div>
       {error && <div>Error: {error.message}</div>}
 
-      <h2 className='text-xl'>PCs</h2>
+      <h2 className='text-xl'>Custom Creatures</h2>
 
-      <div>No. of Characters: {data.length}</div>
+      <div>No. of Creatures: {data.length}</div>
       <ul>
         {data.map((creature) => (
           <li key={creature.id} className='border p-2'>

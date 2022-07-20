@@ -32,55 +32,35 @@ export const creatureSchema = z.object({
   int: z.number().int(),
   wis: z.number().int(),
   cha: z.number().int(),
-
-  // savingThrows          CreatureSavingThrows[]
-  // skills                CreatureSkills[]
-  // conditionImmunities   CreatureConditionImmunities[]
-  // damageImmunities      CreatureDamageImmunities[]
-  // damageResistances     CreatureDamageResistances[]
-  // damageVulnerabilities CreatureDamageVulnerabilities[]
-  // senses                CreatureSenses[]
-  // languages             CreatureLanguages[]
 });
+
 export type CreatureSchemaType = z.TypeOf<typeof creatureSchema>;
 
+// CREATURE RELATED TABLES
 export const creatureSavingThrowsSchema = z.object({
   id: z.string().cuid().optional(),
   type: z.string(),
   // creatureId: z.string().nullable(),
 });
-export type CreatureSavingThrowsSchemaType = z.TypeOf<typeof creatureSavingThrowsSchema>;
+
+export const creatureConditionImmunitiesSchema = creatureSavingThrowsSchema;
+export const creatureDamageImmunitiesSchema = creatureSavingThrowsSchema;
+export const creatureDamageResistancesSchema = creatureSavingThrowsSchema;
+export const creatureDamageVulnerabilitiesSchema = creatureSavingThrowsSchema;
 
 export const creatureSkillsSchema = z.object({
   id: z.string().cuid(),
   type: z.string(),
   proficient: z.boolean(),
   expertise: z.boolean(),
-  creatureId: z.string().nullable(),
+  // creatureId: z.string().nullable(),
 });
-export type CreatureSkillsSchemaType = z.TypeOf<typeof creatureSkillsSchema>;
-
-export const creatureConditionImmunitiesSchema = creatureSavingThrowsSchema;
-export type CreatureConditionImmunitiesSchemaType = z.TypeOf<
-  typeof creatureConditionImmunitiesSchema
->;
-
-export const creatureDamageImmunitiesSchema = creatureSavingThrowsSchema;
-export type CreatureDamageImmunitiesSchemaType = z.TypeOf<typeof creatureDamageImmunitiesSchema>;
-
-export const creatureDamageResistancesSchema = creatureSavingThrowsSchema;
-export type CreatureDamageResistancesSchemaType = z.TypeOf<typeof creatureDamageResistancesSchema>;
-
-export const creatureDamageVulnerabilitiesSchema = creatureSavingThrowsSchema;
-export type CreatureDamageVulnerabilitiesSchemaType = z.TypeOf<
-  typeof creatureDamageVulnerabilitiesSchema
->;
 
 export const creatureSensesSchema = z.object({
   id: z.string().cuid(),
   type: z.string(),
   distance: z.number(),
-  creatureId: z.string().nullable(),
+  // creatureId: z.string().nullable(),
 });
 
 export const creatureLanguagesSchema = z.object({
@@ -90,39 +70,36 @@ export const creatureLanguagesSchema = z.object({
   understands: z.boolean(),
   exception: z.string().nullable(),
   distance: z.number().nullable(),
-  creatureId: z.string().nullable(),
+  // creatureId: z.string().nullable(),
 });
 
+// CREATURE JOINS
 export const creatureJoinsSchema = z.object({
-  // savingThrows
-  // skills
+  savingThrows: z.array(creatureSavingThrowsSchema),
+  skills: z.array(creatureSkillsSchema),
   conditionImmunities: z.array(creatureConditionImmunitiesSchema),
-  // damageImmunities
-  // damageResistances
-  // damageVulnerabilities
-  // senses
-  // languages
+  damageImmunities: z.array(creatureDamageImmunitiesSchema),
+  damageResistances: z.array(creatureDamageResistancesSchema),
+  damageVulnerabilities: z.array(creatureDamageVulnerabilitiesSchema),
+  senses: z.array(creatureSensesSchema),
+  languages: z.array(creatureLanguagesSchema),
 });
+export type CreatureJoinsSchemaType = z.TypeOf<typeof creatureJoinsSchema>;
 
-export const creatureSchemaWithJoinsSchema = creatureSchema.merge(creatureJoinsSchema);
-export type CreatureSchemaWithJoinsType = CreatureSchemaType & {
-  // savingThrows
-  // skills
-  conditionImmunities: CreatureConditionImmunitiesSchemaType[];
-  // damageImmunities
-  // damageResistances
-  // damageVulnerabilities
-  // senses
-  // languages
-};
+export const creatureWithJoinsSchema = creatureSchema.merge(creatureJoinsSchema);
+export type CreatureWithJoinsSchemaType = CreatureSchemaType & CreatureJoinsSchemaType;
 
+// NEW CREATURE
 export const newCreatureSchema = creatureSchema.omit({
   id: true,
   createdById: true,
   createdAt: true,
   updatedAt: true,
 });
+export const newCreatureWithJoinsSchema = newCreatureSchema.merge(creatureJoinsSchema);
 export type NewCreatureSchemaType = z.TypeOf<typeof newCreatureSchema>;
+export type NewCreatureWithJoinsSchemaType = NewCreatureSchemaType & CreatureJoinsSchemaType;
 
+// DELETE CREATURE
 export const deleteCreatureSchema = creatureSchema.pick({ id: true });
 export type DeleteCreatureSchemaType = z.TypeOf<typeof deleteCreatureSchema>;

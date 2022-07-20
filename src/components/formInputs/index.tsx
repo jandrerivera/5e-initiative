@@ -3,17 +3,17 @@ import { Path, UseFormRegister } from 'react-hook-form';
 
 //Typescript from here: www.thisdot.co/blog/how-to-create-reusable-form-components-with-react-hook-forms-and-typescript
 
-type InputFieldProps<TFormSchema> = {
-  field: Path<TFormSchema>;
-  label: string;
-  register: UseFormRegister<TFormSchema>;
+type InputFieldProps<T> = {
+  field: Path<T>;
+  label?: string;
+  register: UseFormRegister<T>;
 };
 
 export const TextInput = <T,>({ field, label, register }: InputFieldProps<T>) => {
   const id = useId();
   return (
     <div>
-      <label htmlFor={id}>{label}</label>
+      {label && <label htmlFor={id}>{label}</label>}
       <input id={id} type='text' {...register(field)}></input>
     </div>
   );
@@ -23,7 +23,7 @@ export const NumberInput = <T,>({ field, label, register }: InputFieldProps<T>) 
   const id = useId();
   return (
     <div>
-      <label htmlFor={id}>{label}</label>
+      {label && <label htmlFor={id}>{label}</label>}
       <input
         id={id}
         type='number'
@@ -39,7 +39,7 @@ export const CheckboxInput = <T,>({ field, label, register }: InputFieldProps<T>
   const id = useId();
   return (
     <div>
-      <label htmlFor={id}>{label}</label>
+      {label && <label htmlFor={id}>{label}</label>}
       <input id={id} type='checkbox' {...register(field)}></input>
     </div>
   );
@@ -53,7 +53,7 @@ export const SelectInput = <T,>({ field, label, options, register }: SelectInput
   const id = useId();
   return (
     <div>
-      <label htmlFor={id}>{label}</label>
+      {label && <label htmlFor={id}>{label}</label>}
       <select {...register(field)}>
         {options.map(({ value, label }, i) => (
           <option key={i} value={value}>
@@ -73,7 +73,7 @@ export const AbilityScoreField = <T,>({ field, label, register }: InputFieldProp
 
   return (
     <div>
-      <label htmlFor={scoreID}>{label}</label>
+      {label && <label htmlFor={scoreID}>{label}</label>}
       <input id={scoreID} type='text' {...register(field)}></input>
       <label htmlFor={bonusId}>Save Bonus</label>
       <input id={bonusId} type='checkbox' {...register(bonus)}></input>
@@ -89,7 +89,7 @@ export const SkillField = <T,>({ field, label, register }: InputFieldProps<T>) =
 
   return (
     <div>
-      <label htmlFor={proficiencyId}>{label}</label>
+      {label && <label htmlFor={proficiencyId}>{label}</label>}
       <input id={proficiencyId} type='checkbox' {...register(field)}></input>
       <label htmlFor={expertiseId}>Expertise</label>
       <input id={expertiseId} type='checkbox' {...register(expertise)}></input>

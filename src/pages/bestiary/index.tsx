@@ -13,6 +13,7 @@ const BestiaryPage: ProtectedNextPage = ({}) => {
   return (
     <div>
       <h1 className='text-3xl'>Bestiary</h1>
+      <Link href='/bestiary/new'>Add New</Link>
 
       <LazyCreaturesList />
     </div>
