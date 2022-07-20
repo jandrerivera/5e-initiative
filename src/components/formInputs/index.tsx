@@ -3,7 +3,7 @@ import { Path, UseFormRegister } from 'react-hook-form';
 
 //www.thisdot.co/blog/how-to-create-reusable-form-components-with-react-hook-forms-and-typescript
 
-https: type InputFieldProps<TFormSchema> = {
+type InputFieldProps<TFormSchema> = {
   field: Path<TFormSchema>;
   label: string;
   register: UseFormRegister<TFormSchema>;
