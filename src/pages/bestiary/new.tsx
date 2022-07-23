@@ -20,6 +20,7 @@ export const defaultValues = {
   int: 10,
   wis: 10,
   cha: 10,
+  fromSRD: false,
 };
 
 const NewCharacterPage: ProtectedNextPage = () => {

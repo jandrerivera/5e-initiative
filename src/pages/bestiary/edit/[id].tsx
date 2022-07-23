@@ -15,8 +15,8 @@ const EditCharacterPage: ProtectedNextPage = () => {
   const { mutate, error } = trpc.useMutation(['bestiary.update']);
 
   const onSubmit: SubmitHandler<CreatureWithJoinsSchemaType> = (data) => {
+    if (data.fromSRD) return;
     mutate(data);
-    console.log(data);
   };
 
   if (!data) return <>Character not found</>;

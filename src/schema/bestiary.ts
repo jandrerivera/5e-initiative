@@ -4,7 +4,9 @@ export const creatureSchema = z.object({
   id: z.string().cuid(),
   name: z.string(),
 
-  createdById: z.string().cuid(),
+  fromSRD: z.boolean(),
+
+  createdById: z.string().cuid().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 
@@ -40,36 +42,22 @@ export type CreatureSchemaType = z.TypeOf<typeof creatureSchema>;
 export const creatureSavingThrowsSchema = z.object({
   id: z.string().cuid().optional(),
   type: z.string(),
+  value: z.string(),
   // creatureId: z.string().nullable(),
 });
+export const creatureSkillsSchema = creatureSavingThrowsSchema;
+export const creatureSensesSchema = creatureSavingThrowsSchema;
 
-export const creatureConditionImmunitiesSchema = creatureSavingThrowsSchema;
-export const creatureDamageImmunitiesSchema = creatureSavingThrowsSchema;
-export const creatureDamageResistancesSchema = creatureSavingThrowsSchema;
-export const creatureDamageVulnerabilitiesSchema = creatureSavingThrowsSchema;
-
-export const creatureSkillsSchema = z.object({
-  id: z.string().cuid(),
-  type: z.string(),
-  proficient: z.boolean(),
-  expertise: z.boolean(),
-  // creatureId: z.string().nullable(),
-});
-
-export const creatureSensesSchema = z.object({
-  id: z.string().cuid(),
-  type: z.string(),
-  distance: z.number(),
-  // creatureId: z.string().nullable(),
-});
+export const creatureConditionImmunitiesSchema = creatureSavingThrowsSchema.omit({ value: true });
+export const creatureDamageImmunitiesSchema = creatureSavingThrowsSchema.omit({ value: true });
+export const creatureDamageResistancesSchema = creatureSavingThrowsSchema.omit({ value: true });
+export const creatureDamageVulnerabilitiesSchema = creatureSavingThrowsSchema.omit({ value: true });
 
 export const creatureLanguagesSchema = z.object({
-  id: z.string().cuid(),
-  languageName: z.string(),
-  speaks: z.boolean(),
-  understands: z.boolean(),
+  id: z.string().cuid().optional(),
+  name: z.string(),
+  level: z.enum(['speaks', 'understands']),
   exception: z.string().nullable(),
-  distance: z.number().nullable(),
   // creatureId: z.string().nullable(),
 });
 
@@ -84,6 +72,7 @@ export const creatureJoinsSchema = z.object({
   senses: z.array(creatureSensesSchema),
   languages: z.array(creatureLanguagesSchema),
 });
+
 export type CreatureJoinsSchemaType = z.TypeOf<typeof creatureJoinsSchema>;
 
 export const creatureWithJoinsSchema = creatureSchema.merge(creatureJoinsSchema);
@@ -101,5 +90,5 @@ export type NewCreatureSchemaType = z.TypeOf<typeof newCreatureSchema>;
 export type NewCreatureWithJoinsSchemaType = NewCreatureSchemaType & CreatureJoinsSchemaType;
 
 // DELETE CREATURE
-export const deleteCreatureSchema = creatureSchema.pick({ id: true });
+export const deleteCreatureSchema = creatureSchema.pick({ id: true, fromSRD: true });
 export type DeleteCreatureSchemaType = z.TypeOf<typeof deleteCreatureSchema>;

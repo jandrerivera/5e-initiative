@@ -28,4 +28,5 @@ const ProtectedRoute = ({ children }: { children: ReactElement }) => {
 
   return null;
 };
+
 export default ProtectedRoute;

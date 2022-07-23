@@ -64,6 +64,7 @@ export const bestiaryRouter = createProtectedRouter()
     async resolve({ ctx, input }) {
       const {
         id,
+        fromSRD,
         savingThrows,
         skills,
         conditionImmunities,
@@ -74,14 +75,19 @@ export const bestiaryRouter = createProtectedRouter()
         languages,
       } = input;
 
-      await ctx.prisma.creatureSavingThrows.deleteMany({ where: { creatureId: id } });
-      await ctx.prisma.creatureSkills.deleteMany({ where: { creatureId: id } });
-      await ctx.prisma.creatureConditionImmunities.deleteMany({ where: { creatureId: id } });
-      await ctx.prisma.creatureDamageImmunities.deleteMany({ where: { creatureId: id } });
-      await ctx.prisma.creatureDamageResistances.deleteMany({ where: { creatureId: id } });
-      await ctx.prisma.creatureDamageVulnerabilities.deleteMany({ where: { creatureId: id } });
-      await ctx.prisma.creatureSenses.deleteMany({ where: { creatureId: id } });
-      await ctx.prisma.creatureLanguages.deleteMany({ where: { creatureId: id } });
+      if (fromSRD) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot edit entries from SRD' });
+      }
+
+      await Promise.all([
+        ctx.prisma.creatureSavingThrows.deleteMany({ where: { creatureId: id } }),
+        ctx.prisma.creatureSkills.deleteMany({ where: { creatureId: id } }),
+        ctx.prisma.creatureConditionImmunities.deleteMany({ where: { creatureId: id } }),
+        ctx.prisma.creatureDamageImmunities.deleteMany({ where: { creatureId: id } }),
+        ctx.prisma.creatureDamageResistances.deleteMany({ where: { creatureId: id } }),
+        ctx.prisma.creatureDamageVulnerabilities.deleteMany({ where: { creatureId: id } }),
+        ctx.prisma.creatureSenses.deleteMany({ where: { creatureId: id } }),
+      ]);
 
       const updatedCreature = await ctx.prisma.creatures.update({
         where: { id },
@@ -120,25 +126,83 @@ export const bestiaryRouter = createProtectedRouter()
   .mutation('delete', {
     input: deleteCreatureSchema,
     async resolve({ ctx, input }) {
-      const { id } = input;
+      const { id, fromSRD } = input;
+
+      if (fromSRD) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot delete entries from SRD' });
+      }
       await ctx.prisma.creatures.delete({ where: { id } });
     },
   })
 
   .query('get-all', {
-    resolve({ ctx }) {
-      return ctx.prisma.creatures.findMany({
+    async resolve({ ctx }) {
+      return await ctx.prisma.creatures.findMany({
+        where: { fromSRD: false },
         include: {
           conditionImmunities: true,
           damageImmunities: true,
           damageResistances: true,
           damageVulnerabilities: true,
-          languages: true,
           savingThrows: true,
           senses: true,
           skills: true,
+          languages: true,
         },
       });
+    },
+  })
+  .query('get-all-from-srd', {
+    async resolve({ ctx }) {
+      return await ctx.prisma.creatures.findMany({
+        where: { fromSRD: true },
+        include: {
+          conditionImmunities: true,
+          damageImmunities: true,
+          damageResistances: true,
+          damageVulnerabilities: true,
+          savingThrows: true,
+          senses: true,
+          skills: true,
+          languages: true,
+        },
+      });
+    },
+  })
+  .query('get-all-grouped-by-srd', {
+    async resolve({ ctx }) {
+      const fromSRD = await ctx.prisma.creatures.findMany({
+        where: { fromSRD: true },
+        include: {
+          conditionImmunities: true,
+          damageImmunities: true,
+          damageResistances: true,
+          damageVulnerabilities: true,
+          savingThrows: true,
+          senses: true,
+          skills: true,
+          languages: true,
+        },
+      });
+
+      const customCreatures = await ctx.prisma.creatures.findMany({
+        where: { fromSRD: false },
+        include: {
+          conditionImmunities: true,
+          damageImmunities: true,
+          damageResistances: true,
+          damageVulnerabilities: true,
+          savingThrows: true,
+          senses: true,
+          skills: true,
+          languages: true,
+        },
+      });
+
+      return {
+        fromSRD,
+        customCreatures,
+      };
     },
   })
   .query('get-unique-by-id', {
@@ -157,10 +221,10 @@ export const bestiaryRouter = createProtectedRouter()
           damageImmunities: true,
           damageResistances: true,
           damageVulnerabilities: true,
-          languages: true,
           savingThrows: true,
           senses: true,
           skills: true,
+          languages: true,
         },
       });
     },

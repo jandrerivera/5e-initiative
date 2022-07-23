@@ -109,8 +109,10 @@ model Creatures {
     id   String @id @default(cuid())
     name String
 
-    createdById String
-    createdBy   User   @relation(fields: [createdById], references: [id])
+    fromSRD Boolean @default(false)
+
+    createdById String?
+    createdBy   User?   @relation(fields: [createdById], references: [id])
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -151,74 +153,77 @@ model Creatures {
 }
 
 model CreatureSavingThrows {
-    id   String @id @default(cuid())
-    type String
+    id    String @id @default(cuid())
+    type  String
+    value String
 
-    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
-    creatureId String?
+    Creature   Creatures @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String
 }
 
 model CreatureSkills {
-    id         String  @id @default(cuid())
-    type       String
-    proficient Boolean @default(false)
-    expertise  Boolean @default(false)
+    id    String @id @default(cuid())
+    type  String
+    value String
 
-    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
-    creatureId String?
+    Creature   Creatures @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String
+}
+
+model CreatureSenses {
+    id    String @id @default(cuid())
+    type  String
+    value String
+
+    Creature   Creatures @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String
 }
 
 model CreatureConditionImmunities {
     id   String @id @default(cuid())
     type String
 
-    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
-    creatureId String?
+    Creature   Creatures @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String
 }
 
 model CreatureDamageImmunities {
     id   String @id @default(cuid())
     type String
 
-    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
-    creatureId String?
+    Creature   Creatures @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String
 }
 
 model CreatureDamageResistances {
     id   String @id @default(cuid())
     type String
 
-    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
-    creatureId String?
+    Creature   Creatures @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String
 }
 
 model CreatureDamageVulnerabilities {
     id   String @id @default(cuid())
     type String
 
-    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
-    creatureId String?
-}
-
-model CreatureSenses {
-    id       String @id @default(cuid())
-    type     String
-    distance Int
-
-    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
-    creatureId String?
+    Creature   Creatures @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String
 }
 
 model CreatureLanguages {
-    id           String  @id @default(cuid())
-    languageName String
-    speaks       Boolean
-    understands  Boolean
-    exception    String?
-    distance     Int? //ONLY used for Telepathy
+    id        String                       @id @default(cuid())
+    name      String
+    level     CreatureLanguagesProficiency
+    exception String?
 
-    Creature   Creatures? @relation(fields: [creatureId], references: [id], onDelete: Cascade)
-    creatureId String?
+    Creature   Creatures @relation(fields: [creatureId], references: [id], onDelete: Cascade)
+    creatureId String
+}
+
+enum CreatureLanguagesProficiency {
+    speaks
+    understands
 }
 
 // Necessary for Next auth

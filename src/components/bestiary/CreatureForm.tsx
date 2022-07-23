@@ -100,22 +100,17 @@ const CreatureForm = ({ formData, onSubmit }: CreatureFormProps) => {
   );
 };
 
-type ArrayFielsProps<T> = {
-  control: Control<T>;
-  register: UseFormRegister<T>;
+type ArrayFielsProps = {
+  control: Control<TForm>;
+  register: UseFormRegister<TForm>;
 };
 
-type TypeArrayFieldProps<T> = {
+type TypeArrayFieldProps = {
   label?: string;
-  fieldArray: Exclude<FieldArrayPath<T>, 'languages' | 'senses' | 'skills'>;
-} & ArrayFielsProps<T>;
+  fieldArray: Exclude<FieldArrayPath<TForm>, 'languages' | 'senses' | 'skills'>;
+} & ArrayFielsProps;
 
-const TypeArrayField = ({
-  label,
-  fieldArray,
-  control,
-  register,
-}: TypeArrayFieldProps<CreatureWithJoinsSchemaType>) => {
+const TypeArrayField = ({ label, fieldArray, control, register }: TypeArrayFieldProps) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: fieldArray, // unique name for your Field Array
@@ -141,7 +136,7 @@ const TypeArrayField = ({
   );
 };
 
-const SkillsField = ({ control, register }: ArrayFielsProps<CreatureWithJoinsSchemaType>) => {
+const SkillsField = ({ control, register }: ArrayFielsProps) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: 'skills', // unique name for your Field Array
@@ -153,9 +148,8 @@ const SkillsField = ({ control, register }: ArrayFielsProps<CreatureWithJoinsSch
       <ul>
         {fields.map((field, i) => (
           <div key={field.id} className='flex flex-row gap-2'>
-            <TextInput label='Avatar' field={`skills.${i}.type`} register={register} />
-            <CheckboxInput label='Avatar' field={`skills.${i}.proficient`} register={register} />
-            <CheckboxInput label='Avatar' field={`skills.${i}.expertise`} register={register} />
+            <TextInput label='Skill' field={`skills.${i}.type`} register={register} />
+            <TextInput label='Value' field={`skills.${i}.value`} register={register} />
             <button type='button' className='bg-slate-200 p-2' onClick={() => remove(i)}>
               Remove
             </button>
@@ -169,7 +163,7 @@ const SkillsField = ({ control, register }: ArrayFielsProps<CreatureWithJoinsSch
   );
 };
 
-const SensesField = ({ control, register }: ArrayFielsProps<CreatureWithJoinsSchemaType>) => {
+const SensesField = ({ control, register }: ArrayFielsProps) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: 'senses', // unique name for your Field Array
@@ -181,8 +175,8 @@ const SensesField = ({ control, register }: ArrayFielsProps<CreatureWithJoinsSch
       <ul>
         {fields.map((field, i) => (
           <div key={field.id} className='flex flex-row gap-2'>
-            <TextInput label='Avatar' field={`senses.${i}.type`} register={register} />
-            <NumberInput label='Avatar' field={`senses.${i}.distance`} register={register} />
+            <TextInput label='Sense' field={`senses.${i}.type`} register={register} />
+            <TextInput label='Value' field={`senses.${i}.value`} register={register} />
             <button type='button' className='bg-slate-200 p-2' onClick={() => remove(i)}>
               Remove
             </button>
@@ -196,7 +190,7 @@ const SensesField = ({ control, register }: ArrayFielsProps<CreatureWithJoinsSch
   );
 };
 
-const LanguagesField = ({ control, register }: ArrayFielsProps<CreatureWithJoinsSchemaType>) => {
+const LanguagesField = ({ control, register }: ArrayFielsProps) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: 'languages', // unique name for your Field Array
@@ -208,15 +202,19 @@ const LanguagesField = ({ control, register }: ArrayFielsProps<CreatureWithJoins
       <ul>
         {fields.map((field, i) => (
           <div key={field.id} className='flex flex-row gap-2'>
-            <TextInput label='Avatar' field={`languages.${i}.languageName`} register={register} />
-            <CheckboxInput label='Avatar' field={`languages.${i}.speaks`} register={register} />
-            <CheckboxInput
-              label='Avatar'
-              field={`languages.${i}.understands`}
+            <TextInput label='Language' field={`languages.${i}.name`} register={register} />
+            <SelectInput
+              field={`languages.${i}.level`}
+              options={[
+                { value: 'speaks', label: 'Speaks' },
+                { value: 'understands', label: 'Upderstands' },
+              ]}
               register={register}
             />
-            <TextInput label='Avatar' field={`languages.${i}.exception`} register={register} />
-            <NumberInput label='Avatar' field={`languages.${i}.distance`} register={register} />
+
+            {}
+            <TextInput label='Exception' field={`languages.${i}.exception`} register={register} />
+
             <button type='button' className='bg-slate-200 p-2' onClick={() => remove(i)}>
               Remove
             </button>
