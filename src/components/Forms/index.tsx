@@ -1,15 +1,19 @@
 import { useId } from 'react';
-import { Path, UseFormRegister } from 'react-hook-form';
+import { FieldValues, Path, UseFormRegister } from 'react-hook-form';
 
 //Typescript from here: www.thisdot.co/blog/how-to-create-reusable-form-components-with-react-hook-forms-and-typescript
 
-type InputFieldProps<T> = {
-  field: Path<T>;
+type InputFieldProps<TFormValues extends FieldValues> = {
+  field: Path<TFormValues>;
   label?: string;
-  register: UseFormRegister<T>;
+  register: UseFormRegister<TFormValues>;
 };
 
-export const TextInput = <T,>({ field, label, register }: InputFieldProps<T>) => {
+export const TextInput = <TFormValues extends FieldValues>({
+  field,
+  label,
+  register,
+}: InputFieldProps<TFormValues>) => {
   const id = useId();
   return (
     <div>
@@ -19,7 +23,11 @@ export const TextInput = <T,>({ field, label, register }: InputFieldProps<T>) =>
   );
 };
 
-export const NumberInput = <T,>({ field, label, register }: InputFieldProps<T>) => {
+export const NumberInput = <TFormValues extends FieldValues>({
+  field,
+  label,
+  register,
+}: InputFieldProps<TFormValues>) => {
   const id = useId();
   return (
     <div>
@@ -35,7 +43,11 @@ export const NumberInput = <T,>({ field, label, register }: InputFieldProps<T>) 
   );
 };
 
-export const CheckboxInput = <T,>({ field, label, register }: InputFieldProps<T>) => {
+export const CheckboxInput = <TFormValues extends FieldValues>({
+  field,
+  label,
+  register,
+}: InputFieldProps<TFormValues>) => {
   const id = useId();
   return (
     <div>
@@ -45,11 +57,16 @@ export const CheckboxInput = <T,>({ field, label, register }: InputFieldProps<T>
   );
 };
 
-type SelectInputProps<T> = InputFieldProps<T> & {
+type SelectInputProps<TFormValues extends FieldValues> = InputFieldProps<TFormValues> & {
   options: { value: string; label: string }[];
 };
 
-export const SelectInput = <T,>({ field, label, options, register }: SelectInputProps<T>) => {
+export const SelectInput = <TFormValues extends FieldValues>({
+  field,
+  label,
+  options,
+  register,
+}: SelectInputProps<TFormValues>) => {
   const id = useId();
   return (
     <div>
@@ -65,7 +82,11 @@ export const SelectInput = <T,>({ field, label, options, register }: SelectInput
   );
 };
 
-export const AbilityScoreField = <T,>({ field, label, register }: InputFieldProps<T>) => {
+export const AbilityScoreField = <TFormValues extends FieldValues>({
+  field,
+  label,
+  register,
+}: InputFieldProps<TFormValues>) => {
   const scoreID = useId();
   const bonusId = useId();
 
@@ -81,7 +102,11 @@ export const AbilityScoreField = <T,>({ field, label, register }: InputFieldProp
   );
 };
 
-export const SkillField = <T,>({ field, label, register }: InputFieldProps<T>) => {
+export const SkillField = <TFormValues extends FieldValues>({
+  field,
+  label,
+  register,
+}: InputFieldProps<TFormValues>) => {
   const proficiencyId = useId();
   const expertiseId = useId();
 

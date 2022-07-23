@@ -58,6 +58,7 @@ const CreaturesList = () => {
             <div>Name: {creature.name}</div>
             <div>ID: {creature.id}</div>
             <div>SRD</div>
+            <Link href={`/bestiary/edit/${creature.id}`}>Edit</Link>
           </li>
         ))}
       </ul>

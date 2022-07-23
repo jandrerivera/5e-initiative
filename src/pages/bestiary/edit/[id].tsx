@@ -12,7 +12,7 @@ const EditCharacterPage: ProtectedNextPage = () => {
 
   const { data } = trpc.useQuery(['bestiary.get-unique-by-id', { id: id as string }]);
 
-  const { mutate, error } = trpc.useMutation(['bestiary.update']);
+  const { mutate, isLoading, error } = trpc.useMutation(['bestiary.update']);
 
   const onSubmit: SubmitHandler<CreatureWithJoinsSchemaType> = (data) => {
     if (data.fromSRD) return;
@@ -24,8 +24,8 @@ const EditCharacterPage: ProtectedNextPage = () => {
   return (
     <div>
       <h1 className='text-3xl'>Edit Character</h1>
-      {/* {error && <div>Error: {error.message}</div>} */}
-      <CreatureForm formData={data} onSubmit={onSubmit} />
+      {error && <div>Error: {error.message}</div>}
+      <CreatureForm formData={data} onSubmit={onSubmit} loading={isLoading} />
     </div>
   );
 };

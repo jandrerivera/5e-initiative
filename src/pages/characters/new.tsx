@@ -28,7 +28,7 @@ export const defaultValues = {
 const NewCharacterPage: ProtectedNextPage = () => {
   const router = useRouter();
 
-  const { mutate, error } = trpc.useMutation(['character.create'], {
+  const { mutate, isLoading, error } = trpc.useMutation(['character.create'], {
     onSuccess: ({ id }) => {
       router.push(`/characters/edit/${id}`);
     },
@@ -44,7 +44,7 @@ const NewCharacterPage: ProtectedNextPage = () => {
       <h1 className='text-3xl'>New Character</h1>
       {error && <div>Error: {error.message}</div>}
 
-      <CharacterForm formData={defaultValues} onSubmit={onSubmit} />
+      <CharacterForm formData={defaultValues} onSubmit={onSubmit} loading={isLoading} />
     </div>
   );
 };

@@ -26,7 +26,7 @@ export const defaultValues = {
 const NewCharacterPage: ProtectedNextPage = () => {
   const router = useRouter();
 
-  const { mutate, error } = trpc.useMutation(['bestiary.create'], {
+  const { mutate, isLoading, error } = trpc.useMutation(['bestiary.create'], {
     onSuccess: ({ id }) => {
       router.push(`/bestiary/edit/${id}`);
     },
@@ -42,7 +42,7 @@ const NewCharacterPage: ProtectedNextPage = () => {
       <h1 className='text-3xl'>New Character</h1>
       {error && <div>Error: {error.message}</div>}
 
-      <CreatureForm formData={defaultValues} onSubmit={onSubmit} />
+      <CreatureForm formData={defaultValues} onSubmit={onSubmit} loading={isLoading} />
     </div>
   );
 };

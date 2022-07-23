@@ -7,16 +7,17 @@ import {
   SelectInput,
   SkillField,
   TextInput,
-} from '../formInputs';
+} from '../Forms';
 
 type TForm = CharacterSchemaType;
 
 type CharacterFormProps = {
   formData?: DeepPartial<TForm>;
   onSubmit: SubmitHandler<TForm>;
+  loading?: boolean;
 };
 
-const CharacterForm = ({ formData, onSubmit }: CharacterFormProps) => {
+const CharacterForm = ({ formData, onSubmit, loading }: CharacterFormProps) => {
   const { register, handleSubmit } = useForm<TForm>({ defaultValues: formData });
 
   return (

@@ -10,23 +10,17 @@ import {
 
 import { CreatureWithJoinsSchemaType } from '../../schema/bestiary';
 
-import {
-  AbilityScoreField,
-  CheckboxInput,
-  NumberInput,
-  SelectInput,
-  SkillField,
-  TextInput,
-} from '../formInputs';
+import { NumberInput, SelectInput, TextInput } from '../Forms';
 
 type TForm = CreatureWithJoinsSchemaType;
 
 type CreatureFormProps = {
   formData?: DeepPartial<TForm>;
   onSubmit: SubmitHandler<TForm>;
+  loading?: boolean;
 };
 
-const CreatureForm = ({ formData, onSubmit }: CreatureFormProps) => {
+const CreatureForm = ({ formData, onSubmit, loading }: CreatureFormProps) => {
   const { control, register, handleSubmit } = useForm<TForm>({
     defaultValues: formData,
   });
@@ -36,15 +30,12 @@ const CreatureForm = ({ formData, onSubmit }: CreatureFormProps) => {
       <TextInput label='Name' field='name' register={register} />
       <TextInput label='Avatar' field='avatar' register={register} />
 
-      <TextInput label='Alignment' field='alignment' register={register} />
-
       <TextInput label='Creature Size' field='creatureSize' register={register} />
       <TextInput label='Species Type' field='creatureType' register={register} />
-      <TextInput label='Challenge Ration' field='challengeRating' register={register} />
-      <TextInput label='Source' field='source' register={register} />
+      <TextInput label='Alignment' field='alignment' register={register} />
 
-      <TextInput label='Max HP' field='hpMax' register={register} />
       <TextInput label='AC' field='ac' register={register} />
+      <TextInput label='Max HP' field='hpMax' register={register} />
       <TextInput label='Hit Dice' field='hitDice' register={register} />
 
       <NumberInput label='Walking Speed' field='speedWalking' register={register} />
@@ -53,47 +44,58 @@ const CreatureForm = ({ formData, onSubmit }: CreatureFormProps) => {
       <NumberInput label='Climbing Speed' field='speedClimbing' register={register} />
       <NumberInput label='Burrowing Speed' field='speedBurrowing' register={register} />
 
-      <AbilityScoreField label='STR' field='str' register={register} />
-      <AbilityScoreField label='DEX' field='dex' register={register} />
-      <AbilityScoreField label='CON' field='con' register={register} />
-      <AbilityScoreField label='INT' field='int' register={register} />
-      <AbilityScoreField label='WIS' field='wis' register={register} />
-      <AbilityScoreField label='CHA' field='cha' register={register} />
+      <NumberInput label='STR' field='str' register={register} />
+      <NumberInput label='DEX' field='dex' register={register} />
+      <NumberInput label='CON' field='con' register={register} />
+      <NumberInput label='INT' field='int' register={register} />
+      <NumberInput label='WIS' field='wis' register={register} />
+      <NumberInput label='CHA' field='cha' register={register} />
 
-      <TypeArrayField
+      <ProficiencyField
         label='Saving Throws'
         fieldArray={'savingThrows'}
         control={control}
         register={register}
       />
-      <TypeArrayField
-        label='Condition Immunities'
-        fieldArray={'conditionImmunities'}
+      <ProficiencyField
+        label='Skills'
+        fieldArray={'skills'}
         control={control}
         register={register}
       />
-      <TypeArrayField
+      <SingleValueArrayField
         label='Damage Vulnerabilities'
         fieldArray={'damageVulnerabilities'}
         control={control}
         register={register}
       />
-      <TypeArrayField
+
+      <SingleValueArrayField
         label='Damage Resistances'
         fieldArray={'damageResistances'}
         control={control}
         register={register}
       />
-      <TypeArrayField
+      <SingleValueArrayField
         label='Damage Immunities'
         fieldArray={'damageImmunities'}
         control={control}
         register={register}
       />
+      <SingleValueArrayField
+        label='Condition Immunities'
+        fieldArray={'conditionImmunities'}
+        control={control}
+        register={register}
+      />
 
-      <SkillsField control={control} register={register} />
       <SensesField control={control} register={register} />
+
       <LanguagesField control={control} register={register} />
+
+      <TextInput label='Challenge Rating' field='challengeRating' register={register} />
+
+      <TextInput label='Source' field='source' register={register} />
 
       <button>Submit</button>
     </form>
@@ -105,12 +107,17 @@ type ArrayFielsProps = {
   register: UseFormRegister<TForm>;
 };
 
-type TypeArrayFieldProps = {
+type SingleValueArrayFieldProps = {
   label?: string;
-  fieldArray: Exclude<FieldArrayPath<TForm>, 'languages' | 'senses' | 'skills'>;
+  fieldArray: Exclude<FieldArrayPath<TForm>, 'languages' | 'senses' | 'skills' | 'savingThrows'>;
 } & ArrayFielsProps;
 
-const TypeArrayField = ({ label, fieldArray, control, register }: TypeArrayFieldProps) => {
+const SingleValueArrayField = ({
+  label,
+  fieldArray,
+  control,
+  register,
+}: SingleValueArrayFieldProps) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: fieldArray, // unique name for your Field Array
@@ -136,19 +143,24 @@ const TypeArrayField = ({ label, fieldArray, control, register }: TypeArrayField
   );
 };
 
-const SkillsField = ({ control, register }: ArrayFielsProps) => {
+type ProficiencyFieldProps = {
+  label?: string;
+  fieldArray: Exclude<FieldArrayPath<TForm>, 'languages' | 'senses'>;
+} & ArrayFielsProps;
+
+const ProficiencyField = ({ fieldArray, label, control, register }: ProficiencyFieldProps) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
-    name: 'skills', // unique name for your Field Array
+    name: fieldArray, // unique name for your Field Array
   });
 
   return (
     <div className='border p-2'>
-      <h3 className='text-xl font-bold'>Skills</h3>
+      <h3 className='text-xl font-bold'>{label}</h3>
       <ul>
         {fields.map((field, i) => (
           <div key={field.id} className='flex flex-row gap-2'>
-            <TextInput label='Skill' field={`skills.${i}.type`} register={register} />
+            <TextInput label='Name' field={`skills.${i}.type`} register={register} />
             <TextInput label='Value' field={`skills.${i}.value`} register={register} />
             <button type='button' className='bg-slate-200 p-2' onClick={() => remove(i)}>
               Remove
@@ -175,7 +187,7 @@ const SensesField = ({ control, register }: ArrayFielsProps) => {
       <ul>
         {fields.map((field, i) => (
           <div key={field.id} className='flex flex-row gap-2'>
-            <TextInput label='Sense' field={`senses.${i}.type`} register={register} />
+            <TextInput label='Name' field={`senses.${i}.type`} register={register} />
             <TextInput label='Value' field={`senses.${i}.value`} register={register} />
             <button type='button' className='bg-slate-200 p-2' onClick={() => remove(i)}>
               Remove
@@ -211,10 +223,7 @@ const LanguagesField = ({ control, register }: ArrayFielsProps) => {
               ]}
               register={register}
             />
-
-            {}
             <TextInput label='Exception' field={`languages.${i}.exception`} register={register} />
-
             <button type='button' className='bg-slate-200 p-2' onClick={() => remove(i)}>
               Remove
             </button>

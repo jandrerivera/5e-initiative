@@ -12,7 +12,7 @@ const EditCharacterPage: ProtectedNextPage = () => {
 
   const { data } = trpc.useQuery(['character.get-unique-by-id', { id: id as string }]);
 
-  const { mutate, error } = trpc.useMutation(['character.update']);
+  const { mutate, isLoading, error } = trpc.useMutation(['character.update']);
 
   const onSubmit: SubmitHandler<CharacterSchemaType> = (data) => {
     mutate(data);
@@ -25,7 +25,7 @@ const EditCharacterPage: ProtectedNextPage = () => {
     <div>
       <h1 className='text-3xl'>Edit Character</h1>
       {error && <div>Error: {error.message}</div>}
-      <CharacterForm formData={data} onSubmit={onSubmit} />
+      <CharacterForm formData={data} onSubmit={onSubmit} loading={isLoading} />
     </div>
   );
 };
