@@ -1,35 +1,39 @@
 import { TRPCError } from '@trpc/server'
 import { createProtectedRouter } from './trpc/createProtectedRouter'
 import { z } from 'zod'
-import { newCharacterSchema, characterSchema, deleteCharacterSchema } from '../../schema/characters'
+import {
+  newEncountersSchema,
+  encountersSchema,
+  deleteEncountersSchema,
+} from '../../schema/encounters'
 
-export const characterRouter = createProtectedRouter()
+export const encountersRouter = createProtectedRouter()
   .mutation('create', {
-    input: newCharacterSchema,
+    input: newEncountersSchema,
     async resolve({ ctx, input }) {
       const userId = ctx.session.user.id
 
-      return await ctx.prisma.character.create({
+      return await ctx.prisma.encounters.create({
         data: { ...input, createdById: userId },
       })
     },
   })
   .mutation('update', {
-    input: characterSchema,
+    input: encountersSchema,
     async resolve({ ctx, input }) {
       const { id } = input
 
-      return await ctx.prisma.character.update({
+      return await ctx.prisma.encounters.update({
         where: { id },
         data: { ...input },
       })
     },
   })
   .mutation('delete', {
-    input: deleteCharacterSchema,
+    input: deleteEncountersSchema,
     async resolve({ ctx, input }) {
       const { id } = input
-      await ctx.prisma.character.delete({ where: { id } })
+      await ctx.prisma.encounters.delete({ where: { id } })
     },
   })
   .query('get-unique-by-id', {
@@ -40,28 +44,18 @@ export const characterRouter = createProtectedRouter()
       if (!input) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Bad Request' })
       }
-      return ctx.prisma.character.findUnique({
+      return ctx.prisma.encounters.findUnique({
         where: { id: `${input?.id}` },
       })
     },
   })
-  .query('get-all-grouped-by-type', {
+  .query('get-all-from-user', {
     async resolve({ ctx }) {
       const userId = ctx.session.user.id
 
-      const PCs = await ctx.prisma.character.findMany({
-        where: { createdById: userId, AND: { type: 'PC' } },
+      return await ctx.prisma.encounters.findMany({
+        where: { createdById: userId },
         orderBy: { createdAt: 'asc' },
       })
-
-      const NPCs = await ctx.prisma.character.findMany({
-        where: { createdById: userId, AND: { type: 'NPC' } },
-        orderBy: { createdAt: 'asc' },
-      })
-
-      return {
-        PCs,
-        NPCs,
-      }
     },
   })

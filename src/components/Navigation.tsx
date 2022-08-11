@@ -1,8 +1,8 @@
-import { useSession } from 'next-auth/react';
-import Link from 'next/link';
+import { useSession } from 'next-auth/react'
+import Link from 'next/link'
 
 const Navigation = () => {
-  const { data: session } = useSession();
+  const { data: session } = useSession()
 
   return (
     <div className='bg-slate-600 text-white p-2'>
@@ -27,12 +27,15 @@ const Navigation = () => {
               <Link href='/bestiary'>Bestiary</Link>
             </li>
             <li>
+              <Link href='/encounters'>Encounters</Link>
+            </li>
+            <li>
               <Link href='/api/auth/signout'>Sign Out</Link>
             </li>
           </>
         )}
       </ul>
     </div>
-  );
-};
-export default Navigation;
+  )
+}
+export default Navigation

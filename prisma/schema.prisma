@@ -15,15 +15,15 @@ model Character {
     name       String
     playerName String?
 
-    type       CharacterType
-    isFriendly Boolean       @default(true)
-    isDead     Boolean       @default(false)
-
     createdById String
     createdBy   User   @relation(fields: [createdById], references: [id])
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    type       CharacterType
+    isFriendly Boolean       @default(true)
+    isDead     Boolean       @default(false)
 
     avatar           String?
     race             String?
@@ -31,11 +31,20 @@ model Character {
     subclass         String?
     level            Int     @default(0)
     experiencePoints Int     @default(0)
-    hpMax            Int     @default(0)
-    ac               Int     @default(0)
-    spellSave        Int     @default(0)
-    inspiration      Boolean @default(false)
-    initiative       Int     @default(0)
+
+    hpMax Int @default(0)
+    ac    Int @default(0)
+
+    conditions        Json?
+    currentHp         Int?
+    tempHp            Int?
+    currentAc         Int?
+    deathSavesSuccess Int?
+    deathSavesFailed  Int?
+
+    initiative  Int     @default(0)
+    spellSave   Int     @default(0)
+    inspiration Boolean @default(false)
 
     speedWalking   Int  @default(30)
     speedClimbing  Int? @default(0)
@@ -98,6 +107,8 @@ model Character {
     skillStealthExpertise         Boolean @default(false)
     skillSurvivalProficient       Boolean @default(false)
     skillSurvivalExpertise        Boolean @default(false)
+
+    Actors Actors[]
 }
 
 enum CharacterType {
@@ -129,6 +140,11 @@ model Creatures {
     ac      Int     @default(0)
     hitDice String?
 
+    conditions Json?
+    currentHp  Int?
+    tempHp     Int?
+    currentAc  Int?
+
     speedWalking   Int  @default(30)
     speedClimbing  Int? @default(0)
     speedFlying    Int? @default(0)
@@ -150,6 +166,8 @@ model Creatures {
     damageVulnerabilities CreatureDamageVulnerabilities[]
     senses                CreatureSenses[]
     languages             CreatureLanguages[]
+
+    actors Actors[]
 }
 
 model CreatureSavingThrows {
@@ -226,6 +244,55 @@ enum CreatureLanguagesProficiency {
     understands
 }
 
+model Encounters {
+    id   String @id @default(cuid())
+    name String
+
+    status       EncounterStatus @default(ready)
+    currentRound Int             @default(0)
+    currentTurn  Int             @default(0)
+
+    createdById String
+    createdBy   User   @relation(fields: [createdById], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    actors Actors[]
+}
+
+enum EncounterStatus {
+    ready
+    paused
+    completed
+}
+
+model Actors {
+    id   String    @id @default(cuid())
+    type ActorType
+
+    initiative    Int?
+    concentration Boolean @default(false)
+    transformed   Boolean @default(false)
+    visible       Boolean @default(true)
+    notes         String?
+
+    characterId String
+    character   Character @relation(fields: [characterId], references: [id])
+
+    creatureId String
+    creature   Creatures @relation(fields: [creatureId], references: [id])
+
+    encounters   Encounters @relation(fields: [encountersId], references: [id], onDelete: Cascade)
+    encountersId String
+}
+
+enum ActorType {
+    player
+    friendly
+    monster
+}
+
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
@@ -264,6 +331,7 @@ model User {
 
     characters Character[]
     creatures  Creatures[]
+    encounters Encounters[]
 }
 
 model VerificationToken {

@@ -1,4 +1,4 @@
-import z from 'zod';
+import z from 'zod'
 
 export const characterSchema = z.object({
   id: z.string().cuid(),
@@ -25,6 +25,13 @@ export const characterSchema = z.object({
 
   inspiration: z.boolean(),
   initiative: z.number().int(),
+
+  // conditions:
+  currentHp: z.number().int().nullable(),
+  tempHp: z.number().int().nullable(),
+  currentAc: z.number().int().nullable(),
+  deathSavesSuccess: z.number().int().nullable(),
+  deathSavesFailed: z.number().int().nullable(),
 
   speedWalking: z.number().int(),
   speedClimbing: z.number().int().nullable(),
@@ -87,17 +94,17 @@ export const characterSchema = z.object({
   skillStealthExpertise: z.boolean(),
   skillSurvivalProficient: z.boolean(),
   skillSurvivalExpertise: z.boolean(),
-});
+})
 
 export const newCharacterSchema = characterSchema.omit({
   id: true,
   createdById: true,
   createdAt: true,
   updatedAt: true,
-});
+})
 
-export const deleteCharacterSchema = characterSchema.pick({ id: true });
+export const deleteCharacterSchema = characterSchema.pick({ id: true })
 
-export type CharacterSchemaType = z.TypeOf<typeof characterSchema>;
-export type NewCharacterSchemaType = z.TypeOf<typeof newCharacterSchema>;
-export type DeleteCharacterSchemaType = z.TypeOf<typeof deleteCharacterSchema>;
+export type CharacterSchemaType = z.TypeOf<typeof characterSchema>
+export type NewCharacterSchemaType = z.TypeOf<typeof newCharacterSchema>
+export type DeleteCharacterSchemaType = z.TypeOf<typeof deleteCharacterSchema>

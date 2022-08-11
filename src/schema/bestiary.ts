@@ -1,4 +1,4 @@
-import z from 'zod';
+import z from 'zod'
 
 export const creatureSchema = z.object({
   id: z.string().cuid(),
@@ -22,6 +22,11 @@ export const creatureSchema = z.object({
   ac: z.number().int(),
   hitDice: z.string().nullable(),
 
+  // conditions:
+  currentHp: z.number().int().nullable(),
+  tempHp: z.number().int().nullable(),
+  currentAc: z.number().int().nullable(),
+
   speedWalking: z.number().int(),
   speedClimbing: z.number().int().nullable(),
   speedFlying: z.number().int().nullable(),
@@ -34,9 +39,9 @@ export const creatureSchema = z.object({
   int: z.number().int(),
   wis: z.number().int(),
   cha: z.number().int(),
-});
+})
 
-export type CreatureSchemaType = z.TypeOf<typeof creatureSchema>;
+export type CreatureSchemaType = z.TypeOf<typeof creatureSchema>
 
 // CREATURE RELATED TABLES
 export const creatureSavingThrowsSchema = z.object({
@@ -44,14 +49,14 @@ export const creatureSavingThrowsSchema = z.object({
   type: z.string(),
   value: z.string(),
   // creatureId: z.string().nullable(),
-});
-export const creatureSkillsSchema = creatureSavingThrowsSchema;
-export const creatureSensesSchema = creatureSavingThrowsSchema;
+})
+export const creatureSkillsSchema = creatureSavingThrowsSchema
+export const creatureSensesSchema = creatureSavingThrowsSchema
 
-export const creatureConditionImmunitiesSchema = creatureSavingThrowsSchema.omit({ value: true });
-export const creatureDamageImmunitiesSchema = creatureSavingThrowsSchema.omit({ value: true });
-export const creatureDamageResistancesSchema = creatureSavingThrowsSchema.omit({ value: true });
-export const creatureDamageVulnerabilitiesSchema = creatureSavingThrowsSchema.omit({ value: true });
+export const creatureConditionImmunitiesSchema = creatureSavingThrowsSchema.omit({ value: true })
+export const creatureDamageImmunitiesSchema = creatureSavingThrowsSchema.omit({ value: true })
+export const creatureDamageResistancesSchema = creatureSavingThrowsSchema.omit({ value: true })
+export const creatureDamageVulnerabilitiesSchema = creatureSavingThrowsSchema.omit({ value: true })
 
 export const creatureLanguagesSchema = z.object({
   id: z.string().cuid().optional(),
@@ -59,7 +64,7 @@ export const creatureLanguagesSchema = z.object({
   level: z.enum(['speaks', 'understands']),
   exception: z.string().nullable(),
   // creatureId: z.string().nullable(),
-});
+})
 
 // CREATURE JOINS
 export const creatureJoinsSchema = z.object({
@@ -71,12 +76,12 @@ export const creatureJoinsSchema = z.object({
   damageVulnerabilities: z.array(creatureDamageVulnerabilitiesSchema),
   senses: z.array(creatureSensesSchema),
   languages: z.array(creatureLanguagesSchema),
-});
+})
 
-export type CreatureJoinsSchemaType = z.TypeOf<typeof creatureJoinsSchema>;
+export type CreatureJoinsSchemaType = z.TypeOf<typeof creatureJoinsSchema>
 
-export const creatureWithJoinsSchema = creatureSchema.merge(creatureJoinsSchema);
-export type CreatureWithJoinsSchemaType = CreatureSchemaType & CreatureJoinsSchemaType;
+export const creatureWithJoinsSchema = creatureSchema.merge(creatureJoinsSchema)
+export type CreatureWithJoinsSchemaType = CreatureSchemaType & CreatureJoinsSchemaType
 
 // NEW CREATURE
 export const newCreatureSchema = creatureSchema.omit({
@@ -84,11 +89,11 @@ export const newCreatureSchema = creatureSchema.omit({
   createdById: true,
   createdAt: true,
   updatedAt: true,
-});
-export const newCreatureWithJoinsSchema = newCreatureSchema.merge(creatureJoinsSchema);
-export type NewCreatureSchemaType = z.TypeOf<typeof newCreatureSchema>;
-export type NewCreatureWithJoinsSchemaType = NewCreatureSchemaType & CreatureJoinsSchemaType;
+})
+export const newCreatureWithJoinsSchema = newCreatureSchema.merge(creatureJoinsSchema)
+export type NewCreatureSchemaType = z.TypeOf<typeof newCreatureSchema>
+export type NewCreatureWithJoinsSchemaType = NewCreatureSchemaType & CreatureJoinsSchemaType
 
 // DELETE CREATURE
-export const deleteCreatureSchema = creatureSchema.pick({ id: true, fromSRD: true });
-export type DeleteCreatureSchemaType = z.TypeOf<typeof deleteCreatureSchema>;
+export const deleteCreatureSchema = creatureSchema.pick({ id: true, fromSRD: true })
+export type DeleteCreatureSchemaType = z.TypeOf<typeof deleteCreatureSchema>
