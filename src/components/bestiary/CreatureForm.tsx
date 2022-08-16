@@ -6,24 +6,24 @@ import {
   UseFormRegister,
   Control,
   FieldArrayPath,
-} from 'react-hook-form';
+} from 'react-hook-form'
 
-import { CreatureWithJoinsSchemaType } from '../../schema/bestiary';
+import { CreatureWithJoinsSchemaType } from '../../schema/bestiary'
 
-import { NumberInput, SelectInput, TextInput } from '../Forms';
+import { NumberInput, SelectInput, TextInput } from '../Forms'
 
-type TForm = CreatureWithJoinsSchemaType;
+type TForm = CreatureWithJoinsSchemaType
 
 type CreatureFormProps = {
-  formData?: DeepPartial<TForm>;
-  onSubmit: SubmitHandler<TForm>;
-  loading?: boolean;
-};
+  formData?: DeepPartial<TForm>
+  onSubmit: SubmitHandler<TForm>
+  loading?: boolean
+}
 
 const CreatureForm = ({ formData, onSubmit, loading }: CreatureFormProps) => {
   const { control, register, handleSubmit } = useForm<TForm>({
     defaultValues: formData,
-  });
+  })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -99,18 +99,18 @@ const CreatureForm = ({ formData, onSubmit, loading }: CreatureFormProps) => {
 
       <button>Submit</button>
     </form>
-  );
-};
+  )
+}
 
 type ArrayFielsProps = {
-  control: Control<TForm>;
-  register: UseFormRegister<TForm>;
-};
+  control: Control<TForm>
+  register: UseFormRegister<TForm>
+}
 
 type SingleValueArrayFieldProps = {
-  label?: string;
-  fieldArray: Exclude<FieldArrayPath<TForm>, 'languages' | 'senses' | 'skills' | 'savingThrows'>;
-} & ArrayFielsProps;
+  label?: string
+  fieldArray: Exclude<FieldArrayPath<TForm>, 'languages' | 'senses' | 'skills' | 'savingThrows'>
+} & ArrayFielsProps
 
 const SingleValueArrayField = ({
   label,
@@ -121,7 +121,7 @@ const SingleValueArrayField = ({
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: fieldArray, // unique name for your Field Array
-  });
+  })
 
   return (
     <div className='border p-2'>
@@ -140,19 +140,19 @@ const SingleValueArrayField = ({
         </button>
       </ul>
     </div>
-  );
-};
+  )
+}
 
 type ProficiencyFieldProps = {
-  label?: string;
-  fieldArray: Exclude<FieldArrayPath<TForm>, 'languages' | 'senses'>;
-} & ArrayFielsProps;
+  label?: string
+  fieldArray: Exclude<FieldArrayPath<TForm>, 'languages' | 'senses'>
+} & ArrayFielsProps
 
 const ProficiencyField = ({ fieldArray, label, control, register }: ProficiencyFieldProps) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: fieldArray, // unique name for your Field Array
-  });
+  })
 
   return (
     <div className='border p-2'>
@@ -172,14 +172,14 @@ const ProficiencyField = ({ fieldArray, label, control, register }: ProficiencyF
         </button>
       </ul>
     </div>
-  );
-};
+  )
+}
 
 const SensesField = ({ control, register }: ArrayFielsProps) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: 'senses', // unique name for your Field Array
-  });
+  })
 
   return (
     <div className='border p-2'>
@@ -199,14 +199,14 @@ const SensesField = ({ control, register }: ArrayFielsProps) => {
         </button>
       </ul>
     </div>
-  );
-};
+  )
+}
 
 const LanguagesField = ({ control, register }: ArrayFielsProps) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: 'languages', // unique name for your Field Array
-  });
+  })
 
   return (
     <div className='border p-2'>
@@ -234,7 +234,7 @@ const LanguagesField = ({ control, register }: ArrayFielsProps) => {
         </button>
       </ul>
     </div>
-  );
-};
+  )
+}
 
-export default CreatureForm;
+export default CreatureForm
