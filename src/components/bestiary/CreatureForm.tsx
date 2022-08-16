@@ -10,7 +10,7 @@ import {
 
 import { CreatureWithJoinsSchemaType } from '../../schema/bestiary'
 
-import { NumberInput, SelectInput, TextInput } from '../Forms'
+import { NumberInput, SelectInput, TextInput } from '../FormInputs'
 
 type TForm = CreatureWithJoinsSchemaType
 
@@ -102,7 +102,7 @@ const CreatureForm = ({ formData, onSubmit, loading }: CreatureFormProps) => {
   )
 }
 
-type ArrayFielsProps = {
+type ArrayFieldProps = {
   control: Control<TForm>
   register: UseFormRegister<TForm>
 }
@@ -110,7 +110,7 @@ type ArrayFielsProps = {
 type SingleValueArrayFieldProps = {
   label?: string
   fieldArray: Exclude<FieldArrayPath<TForm>, 'languages' | 'senses' | 'skills' | 'savingThrows'>
-} & ArrayFielsProps
+} & ArrayFieldProps
 
 const SingleValueArrayField = ({
   label,
@@ -146,7 +146,7 @@ const SingleValueArrayField = ({
 type ProficiencyFieldProps = {
   label?: string
   fieldArray: Exclude<FieldArrayPath<TForm>, 'languages' | 'senses'>
-} & ArrayFielsProps
+} & ArrayFieldProps
 
 const ProficiencyField = ({ fieldArray, label, control, register }: ProficiencyFieldProps) => {
   const { fields, append, remove } = useFieldArray({
@@ -175,7 +175,7 @@ const ProficiencyField = ({ fieldArray, label, control, register }: ProficiencyF
   )
 }
 
-const SensesField = ({ control, register }: ArrayFielsProps) => {
+const SensesField = ({ control, register }: ArrayFieldProps) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: 'senses', // unique name for your Field Array
@@ -202,7 +202,7 @@ const SensesField = ({ control, register }: ArrayFielsProps) => {
   )
 }
 
-const LanguagesField = ({ control, register }: ArrayFielsProps) => {
+const LanguagesField = ({ control, register }: ArrayFieldProps) => {
   const { fields, append, remove } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
     name: 'languages', // unique name for your Field Array

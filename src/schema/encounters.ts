@@ -1,4 +1,6 @@
 import z from 'zod'
+import { characterSchema } from './characters'
+import { creatureSchema } from './bestiary'
 
 export const encountersSchema = z.object({
   id: z.string().cuid(),
@@ -33,21 +35,36 @@ export const actorsSchema = z.object({
   transformed: z.boolean().default(true),
   visible: z.boolean().default(true),
   notes: z.string().nullable(),
+
+  characterId: z.string().nullable(),
+  creatureId: z.string().nullable(),
 })
 
-export const excountersWithActorsSchema = encountersSchema.merge(
-  z.object({ actors: z.array(actorsSchema) })
-)
-
-export const newActorsSchema = encountersSchema.omit({
+export const newActorsSchema = actorsSchema.omit({
   id: true,
   createdById: true,
   createdAt: true,
   updatedAt: true,
 })
 
-export const deleteActorsSchema = encountersSchema.pick({ id: true })
+export const deleteActorsSchema = actorsSchema.pick({ id: true })
 
 export type ActorsSchemaType = z.TypeOf<typeof actorsSchema>
 export type NewActorsSchemaType = z.TypeOf<typeof newEncountersSchema>
 export type DeleteActorsSchemaType = z.TypeOf<typeof deleteEncountersSchema>
+
+export const excountersWithActorsSchema = encountersSchema.merge(
+  z.object({
+    actors: z.array(
+      actorsSchema
+        .merge(z.object({ character: characterSchema }))
+        .merge(z.object({ creature: creatureSchema }))
+    ),
+  })
+)
+
+export const excountersWithNewActorsSchema = encountersSchema.merge(
+  z.object({ actors: z.array(newActorsSchema) })
+)
+
+export type EncountersWithActorsSchemaType = z.TypeOf<typeof excountersWithActorsSchema>

@@ -1,9 +1,9 @@
-import { useRouter } from 'next/router';
-import { SubmitHandler } from 'react-hook-form';
-import CharacterForm from '../../components/characters/CharacterForm';
-import { NewCharacterSchemaType } from '../../schema/characters';
-import { trpc } from '../../utils/trpc';
-import { ProtectedNextPage } from '../_app';
+import { useRouter } from 'next/router'
+import { SubmitHandler } from 'react-hook-form'
+import CharacterForm from '../../components/characters/CharacterForm'
+import { NewCharacterSchemaType } from '../../schema/characters'
+import { trpc } from '../../utils/trpc'
+import { ProtectedNextPage } from '../_app'
 
 export const defaultValues = {
   level: 0,
@@ -23,21 +23,21 @@ export const defaultValues = {
   int: 10,
   wis: 10,
   cha: 10,
-};
+}
 
 const NewCharacterPage: ProtectedNextPage = () => {
-  const router = useRouter();
+  const router = useRouter()
 
   const { mutate, isLoading, error } = trpc.useMutation(['character.create'], {
     onSuccess: ({ id }) => {
-      router.push(`/characters/edit/${id}`);
+      router.push(`/characters/edit/${id}`)
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<NewCharacterSchemaType> = (data) => {
-    mutate(data);
-    console.log(data);
-  };
+    mutate(data)
+    console.log(data)
+  }
 
   return (
     <div>
@@ -46,8 +46,8 @@ const NewCharacterPage: ProtectedNextPage = () => {
 
       <CharacterForm formData={defaultValues} onSubmit={onSubmit} loading={isLoading} />
     </div>
-  );
-};
-export default NewCharacterPage;
+  )
+}
+export default NewCharacterPage
 
-NewCharacterPage.requireAuth = true;
+NewCharacterPage.requireAuth = true

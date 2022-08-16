@@ -277,14 +277,14 @@ model Actors {
     visible       Boolean @default(true)
     notes         String?
 
-    characterId String
-    character   Character @relation(fields: [characterId], references: [id])
+    characterId String?
+    character   Character? @relation(fields: [characterId], references: [id])
 
-    creatureId String
-    creature   Creatures @relation(fields: [creatureId], references: [id])
+    creatureId String?
+    creature   Creatures? @relation(fields: [creatureId], references: [id])
 
-    encounters   Encounters @relation(fields: [encountersId], references: [id], onDelete: Cascade)
     encountersId String
+    encounters   Encounters @relation(fields: [encountersId], references: [id], onDelete: Cascade)
 }
 
 enum ActorType {

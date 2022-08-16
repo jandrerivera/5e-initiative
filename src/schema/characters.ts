@@ -4,6 +4,7 @@ export const characterSchema = z.object({
   id: z.string().cuid(),
   name: z.string(),
   playerName: z.string().nullable(),
+
   type: z.enum(['PC', 'NPC']),
   isFriendly: z.boolean(),
   isDead: z.boolean(),
@@ -27,11 +28,11 @@ export const characterSchema = z.object({
   initiative: z.number().int(),
 
   // conditions:
-  currentHp: z.number().int().nullable(),
-  tempHp: z.number().int().nullable(),
-  currentAc: z.number().int().nullable(),
-  deathSavesSuccess: z.number().int().nullable(),
-  deathSavesFailed: z.number().int().nullable(),
+  // currentHp: z.number().int().nullable(),
+  // tempHp: z.number().int().nullable(),
+  // currentAc: z.number().int().nullable(),
+  // deathSavesSuccess: z.number().int().nullable(),
+  // deathSavesFailed: z.number().int().nullable(),
 
   speedWalking: z.number().int(),
   speedClimbing: z.number().int().nullable(),

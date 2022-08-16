@@ -1,5 +1,5 @@
-import { useForm, SubmitHandler, DeepPartial } from 'react-hook-form';
-import { CharacterSchemaType } from '../../schema/characters';
+import { useForm, SubmitHandler, DeepPartial } from 'react-hook-form'
+import { CharacterSchemaType } from '../../schema/characters'
 import {
   AbilityScoreField,
   CheckboxInput,
@@ -7,18 +7,18 @@ import {
   SelectInput,
   SkillField,
   TextInput,
-} from '../Forms';
+} from '../FormInputs'
 
-type TForm = CharacterSchemaType;
+type TForm = CharacterSchemaType
 
 type CharacterFormProps = {
-  formData?: DeepPartial<TForm>;
-  onSubmit: SubmitHandler<TForm>;
-  loading?: boolean;
-};
+  formData?: DeepPartial<TForm>
+  onSubmit: SubmitHandler<TForm>
+  loading?: boolean
+}
 
 const CharacterForm = ({ formData, onSubmit, loading }: CharacterFormProps) => {
-  const { register, handleSubmit } = useForm<TForm>({ defaultValues: formData });
+  const { register, handleSubmit } = useForm<TForm>({ defaultValues: formData })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -47,7 +47,7 @@ const CharacterForm = ({ formData, onSubmit, loading }: CharacterFormProps) => {
       <TextInput label='Alignment' field='alignment' register={register} />
 
       <TextInput label='Creature Size' field='creatureSize' register={register} />
-      <TextInput label='Species Type' field='creatureSize' register={register} />
+      <TextInput label='Species Type' field='creatureType' register={register} />
       <TextInput label='Challenge Ration' field='challengeRating' register={register} />
       <TextInput label='Source' field='source' register={register} />
 
@@ -93,7 +93,7 @@ const CharacterForm = ({ formData, onSubmit, loading }: CharacterFormProps) => {
 
       <button>Submit</button>
     </form>
-  );
-};
+  )
+}
 
-export default CharacterForm;
+export default CharacterForm

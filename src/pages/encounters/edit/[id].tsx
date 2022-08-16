@@ -2,7 +2,7 @@ import { ProtectedNextPage } from '../../_app'
 import { trpc } from '../../../utils/trpc'
 import { useRouter } from 'next/router'
 
-import { EncountersSchemaType } from '../../../schema/encounters'
+import { EncountersWithActorsSchemaType } from '../../../schema/encounters'
 import { SubmitHandler } from 'react-hook-form'
 import EncountersForm from '../../../components/encounters/EncountersForm'
 
@@ -10,11 +10,11 @@ const EditEncountersPage: ProtectedNextPage = () => {
   const router = useRouter()
   const { id } = router.query
 
-  const { data } = trpc.useQuery(['encounters.get-unique-by-id', { id: id as string }])
+  const { data } = trpc.useQuery(['encounters.get-unique-by-id-with-actors', { id: id as string }])
 
   const { mutate, isLoading, error } = trpc.useMutation(['encounters.update'])
 
-  const onSubmit: SubmitHandler<EncountersSchemaType> = (data) => {
+  const onSubmit: SubmitHandler<EncountersWithActorsSchemaType> = (data) => {
     mutate(data)
     console.log(data)
   }
