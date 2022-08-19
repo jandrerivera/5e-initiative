@@ -50,12 +50,12 @@ export const characterRouter = createProtectedRouter()
       const userId = ctx.session.user.id
 
       const PCs = await ctx.prisma.character.findMany({
-        where: { createdById: userId, AND: { type: 'PC' } },
+        where: { createdById: userId, AND: { type: 'pc' } },
         orderBy: { createdAt: 'asc' },
       })
 
       const NPCs = await ctx.prisma.character.findMany({
-        where: { createdById: userId, AND: { type: 'NPC' } },
+        where: { createdById: userId, AND: { type: 'npc' } },
         orderBy: { createdAt: 'asc' },
       })
 

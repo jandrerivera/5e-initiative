@@ -4,9 +4,37 @@ import Link from 'next/link'
 import { ProtectedNextPage } from '../_app'
 import { prisma } from '../../server/db/client'
 import { trpc } from '../../utils/trpc'
+import { useState, useEffect } from 'react'
+import PaginationControls from '../../components/PaginationControls'
 
-const CreaturesList = () => {
-  const { data, status, error, refetch } = trpc.useQuery(['bestiary.get-all-grouped-by-srd'])
+const BestiaryPage: ProtectedNextPage = ({}) => {
+  return (
+    <div>
+      <h1 className='text-3xl'>Bestiary</h1>
+      <Link href='/bestiary/new'>Add New</Link>
+
+      <h2 className='text-xl'>Custom Creatures</h2>
+      <LazyUserCreaturesList />
+
+      <h2 className='text-xl'>SRD Creatures</h2>
+      <LazySrdCreaturesList />
+    </div>
+  )
+}
+
+const LazyUserCreaturesList = dynamic(() => Promise.resolve(UserCreaturesList), { ssr: false })
+const LazySrdCreaturesList = dynamic(() => Promise.resolve(SrdCreaturesList), { ssr: false })
+
+const creaturesPerPage = 20
+
+const UserCreaturesList = () => {
+  const [page, setPage] = useState(0)
+
+  const { data, status, error, refetch } = trpc.useQuery([
+    'bestiary.get-all-paginated',
+    { page, limit: creaturesPerPage },
+  ])
+
   const {
     mutate,
     error: mutateError,
@@ -14,14 +42,6 @@ const CreaturesList = () => {
   } = trpc.useMutation('bestiary.delete', {
     onSuccess: () => refetch(),
   })
-
-  if (status === 'loading') return <>Loading...</>
-
-  if (status === 'error') return <>Error: {error.message}</>
-
-  if (!data) return <>No Data</>
-
-  const { fromSRD, customCreatures } = data
 
   const handleDelete = (id: string, fromSRD: boolean) => {
     if (fromSRD) {
@@ -31,18 +51,20 @@ const CreaturesList = () => {
     mutate({ id, fromSRD })
   }
 
+  if (status === 'loading') return <>Loading...</>
+  if (status === 'error') return <>Error: {error.message}</>
+  if (!data) return <>No Creatures</>
+  if (data.count <= 0) return <>No Creatures</>
+
   return (
     <div>
       {mutateError && <div>Error: {mutateError.message}</div>}
-
-      <h2 className='text-xl'>Custom Creatures</h2>
-
-      <div>No. of Creatures: {customCreatures.length || 0}</div>
+      <div>No. of Creatures: {data.count || 0}</div>
       <ul>
-        {customCreatures.map((creature) => (
+        {data.creatures.map((creature) => (
           <li key={creature.id} className='border p-2'>
-            <div>Name: {creature.name}</div>
-            <div>ID: {creature.id}</div>
+            <div>{creature.name}</div>
+
             {!isMutating && (
               <>
                 <Link href={`/bestiary/edit/${creature.id}`}>Edit</Link>
@@ -53,34 +75,41 @@ const CreaturesList = () => {
         ))}
       </ul>
 
-      <h2 className='text-xl'>SRD Creatures</h2>
-
-      <div>No. of Creatures: {fromSRD.length || 0}</div>
-      <ul>
-        {fromSRD.map((creature) => (
-          <li key={creature.id} className='border p-2'>
-            <div>Name: {creature.name}</div>
-            <div>ID: {creature.id}</div>
-            <div>SRD</div>
-            <Link href={`/bestiary/edit/${creature.id}`}>Edit</Link>
-          </li>
-        ))}
-      </ul>
+      {creaturesPerPage < data.count && (
+        <PaginationControls hasMore={data.hasMore} page={page} setPage={setPage} />
+      )}
     </div>
   )
 }
 
-const LazyCreaturesList = dynamic(() => Promise.resolve(CreaturesList), {
-  ssr: false,
-})
+const SrdCreaturesList = () => {
+  const [page, setPage] = useState(0)
 
-const BestiaryPage: ProtectedNextPage = ({}) => {
+  const { data, status, error } = trpc.useQuery([
+    'bestiary.get-all-paginated',
+    { fromSrd: true, page, limit: creaturesPerPage },
+  ])
+
+  if (status === 'error') return <>Error: {error.message}</>
+  if (status === 'loading') return <>Loading...</>
+  if (!data) return <>No Creatures</>
+  if (data.count <= 0) return <>No Creatures</>
+
   return (
     <div>
-      <h1 className='text-3xl'>Bestiary</h1>
-      <Link href='/bestiary/new'>Add New</Link>
+      <div>No. of Creatures: {data.count || 0}</div>
+      <ul className='border p-2'>
+        {data.creatures.map((creature) => (
+          <li key={creature.id}>
+            <div>{creature.name}</div>
+            {/* <Link href={`/bestiary/${creature.id}`}>View</Link> */}
+          </li>
+        ))}
+      </ul>
 
-      <LazyCreaturesList />
+      {creaturesPerPage < data.count && (
+        <PaginationControls hasMore={data.hasMore} page={page} setPage={setPage} />
+      )}
     </div>
   )
 }

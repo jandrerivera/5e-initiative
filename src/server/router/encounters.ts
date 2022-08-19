@@ -2,20 +2,26 @@ import { TRPCError } from '@trpc/server'
 import { createProtectedRouter } from './trpc/createProtectedRouter'
 import { z } from 'zod'
 import {
-  encountersSchema,
   excountersWithNewActorsSchema,
-  newEncountersSchema,
+  newExcountersWithNewActorsSchema,
   deleteEncountersSchema,
 } from '../../schema/encounters'
 
 export const encountersRouter = createProtectedRouter()
   .mutation('create', {
-    input: newEncountersSchema,
+    input: newExcountersWithNewActorsSchema,
     async resolve({ ctx, input }) {
       const userId = ctx.session.user.id
+      const { actors } = input
 
       return await ctx.prisma.encounters.create({
-        data: { ...input, createdById: userId },
+        data: {
+          ...input,
+          createdById: userId,
+          actors: {
+            createMany: { data: [...actors] },
+          },
+        },
       })
     },
   })
@@ -48,12 +54,12 @@ export const encountersRouter = createProtectedRouter()
     input: z.object({
       id: z.string(),
     }),
-    resolve({ ctx, input }) {
+    async resolve({ ctx, input }) {
       if (!input) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Bad Request' })
       }
 
-      return ctx.prisma.encounters.findUnique({
+      const encounter = await ctx.prisma.encounters.findUnique({
         where: { id: `${input?.id}` },
         include: {
           actors: {
@@ -64,6 +70,8 @@ export const encountersRouter = createProtectedRouter()
           },
         },
       })
+
+      return encounter
     },
   })
   .query('get-all-from-user', {
@@ -81,12 +89,12 @@ export const encountersRouter = createProtectedRouter()
       const userId = ctx.session.user.id
 
       const PCs = await ctx.prisma.character.findMany({
-        where: { createdById: userId, AND: { type: 'PC' } },
+        where: { createdById: userId, AND: { type: 'pc' } },
         orderBy: { createdAt: 'asc' },
       })
 
       const NPCs = await ctx.prisma.character.findMany({
-        where: { createdById: userId, AND: { type: 'NPC' } },
+        where: { createdById: userId, AND: { type: 'npc' } },
         orderBy: { createdAt: 'asc' },
       })
 

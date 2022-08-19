@@ -21,19 +21,23 @@ model Character {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    type       CharacterType
+    type       CharacterType @default(pc)
     isFriendly Boolean       @default(true)
     isDead     Boolean       @default(false)
 
-    avatar           String?
-    race             String?
-    characterClass   String?
-    subclass         String?
-    level            Int     @default(0)
-    experiencePoints Int     @default(0)
+    avatar         String?
+    race           String?
+    characterClass String?
+    subclass       String?
 
-    hpMax Int @default(0)
-    ac    Int @default(0)
+    advancementType  CharacterAdvancementType @default(xp)
+    level            Int                      @default(0)
+    experiencePoints Int                      @default(0)
+
+    hpMax     Int     @default(0)
+    ac        Int     @default(0)
+    spellSave Int     @default(0)
+    hitDice   String?
 
     conditions        Json?
     currentHp         Int?
@@ -43,14 +47,13 @@ model Character {
     deathSavesFailed  Int?
 
     initiative  Int     @default(0)
-    spellSave   Int     @default(0)
     inspiration Boolean @default(false)
 
-    speedWalking   Int  @default(30)
-    speedClimbing  Int? @default(0)
-    speedFlying    Int? @default(0)
-    speedSwimming  Int? @default(0)
-    speedBurrowing Int? @default(0)
+    speedWalking   Int @default(30)
+    speedClimbing  Int @default(0)
+    speedFlying    Int @default(0)
+    speedSwimming  Int @default(0)
+    speedBurrowing Int @default(0)
 
     creatureSize    String?
     creatureType    String?
@@ -59,17 +62,17 @@ model Character {
     source          String?
 
     str      Int     @default(10)
-    strBonus Boolean
+    strBonus Boolean @default(false)
     dex      Int     @default(10)
-    dexBonus Boolean
+    dexBonus Boolean @default(false)
     con      Int     @default(10)
-    conBonus Boolean
+    conBonus Boolean @default(false)
     int      Int     @default(10)
-    intBonus Boolean
+    intBonus Boolean @default(false)
     wis      Int     @default(10)
-    wisBonus Boolean
+    wisBonus Boolean @default(false)
     cha      Int     @default(10)
-    chaBonus Boolean
+    chaBonus Boolean @default(false)
 
     skillAcrobaticsProficient     Boolean @default(false)
     skillAcrobaticsExpertise      Boolean @default(false)
@@ -112,8 +115,13 @@ model Character {
 }
 
 enum CharacterType {
-    PC
-    NPC
+    pc
+    npc
+}
+
+enum CharacterAdvancementType {
+    xp
+    milestone
 }
 
 model Creatures {

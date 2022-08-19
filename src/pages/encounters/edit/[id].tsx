@@ -11,7 +11,6 @@ const EditEncountersPage: ProtectedNextPage = () => {
   const { id } = router.query
 
   const { data } = trpc.useQuery(['encounters.get-unique-by-id-with-actors', { id: id as string }])
-
   const { mutate, isLoading, error } = trpc.useMutation(['encounters.update'])
 
   const onSubmit: SubmitHandler<EncountersWithActorsSchemaType> = (data) => {

@@ -1,15 +1,15 @@
+import { useState } from 'react'
 import {
   useForm,
   SubmitHandler,
   DeepPartial,
   useFieldArray,
-  FieldArrayPath,
-  Control,
-  UseFormRegister,
+  UseFieldArrayAppend,
 } from 'react-hook-form'
 import { EncountersWithActorsSchemaType } from '../../schema/encounters'
 import { trpc } from '../../utils/trpc'
 import { CheckboxInput, SelectInput, TextAreaInput, TextInput } from '../FormInputs'
+import PaginationControls from '../PaginationControls'
 
 type TForm = EncountersWithActorsSchemaType
 
@@ -20,29 +20,26 @@ type EncountersFormProps = {
 }
 
 const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) => {
-  const { control, register, handleSubmit } = useForm<TForm>({ defaultValues: formData })
+  const { control, register, handleSubmit, watch } = useForm<TForm>({ defaultValues: formData })
+  const { fields, append, remove } = useFieldArray({ control, name: 'actors' })
 
-  const { fields, append, remove } = useFieldArray({
-    control, // control props comes from useForm (optional: if you are using FormContext)
-    name: 'actors', // unique name for your Field Array
-  })
+  const characterQuery = trpc.useQuery(['encounters.get-characters-grouped-by-type'])
 
-  const { data, isLoading } = trpc.useQuery(['encounters.get-characters-grouped-by-type'])
-  if (isLoading) return <>Loading...</>
-  if (!data) return <>No Data</>
+  if (characterQuery.isLoading) return <>Loading...</>
+  if (!characterQuery.data) return <>No Data</>
 
-  const { PCs, NPCs } = data
+  const { PCs, NPCs } = characterQuery.data
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <TextInput label='Name' field='name' register={register} />
-      <div className='border p-2'>
+      <div className='flex flex-row'>
         <div>
           <h2 className='text-xl'>PCs</h2>
           <ul>
             {PCs.map((character) => (
               <li key={character.id} className='border p-2 flex flex-row gap-2'>
-                <div>Name: {character.name}</div>
+                <div>{character.name}</div>
                 <button
                   type='button'
                   className='bg-slate-200 p-2'
@@ -66,7 +63,7 @@ const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) =>
           <ul>
             {NPCs.map((character) => (
               <li key={character.id} className='border p-2 flex flex-row gap-2'>
-                <div>Name: {character.name}</div>
+                <div>{character.name}</div>
                 <button
                   type='button'
                   className='bg-slate-200 p-2'
@@ -85,36 +82,102 @@ const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) =>
               </li>
             ))}
           </ul>
-        </div>
 
-        <h3 className='text-xl font-bold'>Actors</h3>
-        <div className='border p-2'>
-          <ul>
-            {fields.map((field, i) => (
-              <div key={field.id}>
-                <span>Name: {field.character?.name}</span>
-                <SelectInput
-                  label='Character Type'
-                  field={`actors.${i}.type`}
-                  options={[
-                    { value: 'player', label: 'Player' },
-                    { value: 'friendly', label: 'Friendly' },
-                    { value: 'monster', label: 'Monster' },
-                  ]}
-                  register={register}
-                />
-                <CheckboxInput label='Visible' field={`actors.${i}.visible`} register={register} />
-                <TextAreaInput label='Notes' field={`actors.${i}.notes`} register={register} />
-                <button type='button' className='bg-slate-200 p-2' onClick={() => remove(i)}>
-                  Remove
-                </button>
-              </div>
-            ))}
-          </ul>
+          <h2 className='text-xl'>Custom Creatures</h2>
+          <CreatureList append={append} />
+          <h2 className='text-xl'>SRD Creatures</h2>
+          <CreatureList fromSrd={true} append={append} />
+        </div>
+        <div>
+          <h3 className='text-xl font-bold'>Actors</h3>
+          <div className='border p-2'>
+            <ul>
+              {fields.map((field, i) => (
+                <div key={field.id}>
+                  <span className='text-lg font-bold'>
+                    {field.character?.name}
+                    {field.creature?.name}
+                  </span>
+                  <SelectInput
+                    label='Type'
+                    field={`actors.${i}.type`}
+                    options={[
+                      { value: 'player', label: 'Player' },
+                      { value: 'friendly', label: 'Friendly' },
+                      { value: 'monster', label: 'Monster' },
+                    ]}
+                    register={register}
+                  />
+                  <CheckboxInput
+                    label='Visible'
+                    field={`actors.${i}.visible`}
+                    register={register}
+                  />
+                  <TextAreaInput label='Notes' field={`actors.${i}.notes`} register={register} />
+                  <button type='button' className='bg-slate-200 p-2' onClick={() => remove(i)}>
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
       <button>Submit</button>
     </form>
+  )
+}
+
+const creaturesPerPage = 30
+
+const CreatureList = ({
+  fromSrd = false,
+  append,
+}: {
+  fromSrd?: boolean
+  append: UseFieldArrayAppend<TForm>
+}) => {
+  const [page, setPage] = useState(0)
+
+  const { data, status, error } = trpc.useQuery([
+    'bestiary.get-all-paginated',
+    { fromSrd, page, limit: creaturesPerPage },
+  ])
+
+  if (status === 'error') return <>Error: {error.message}</>
+  if (status === 'loading') return <>Loading...</>
+  if (!data) return <>No Creatures</>
+  if (data.count <= 0) return <>No Creatures</>
+
+  return (
+    <div>
+      <div>No. of Creatures: {data.count || 0}</div>
+      <ul className='border p-2'>
+        {data.creatures.map((creature) => (
+          <li key={creature.id} className='flex flex-row items-center'>
+            <div>{creature.name}</div>
+            <button
+              type='button'
+              className='bg-slate-200 p-1'
+              onClick={() =>
+                append({
+                  type: 'monster',
+                  initiative: null,
+                  creatureId: creature.id,
+                  characterId: null,
+                  creature,
+                })
+              }
+            >
+              Add Actor
+            </button>
+          </li>
+        ))}
+      </ul>
+      {creaturesPerPage < data.count && (
+        <PaginationControls hasMore={data.hasMore} page={page} setPage={setPage} />
+      )}
+    </div>
   )
 }
 

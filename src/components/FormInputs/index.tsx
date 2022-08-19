@@ -66,7 +66,7 @@ export const CheckboxInput = <TFormValues extends FieldValues>({
   return (
     <div>
       {label && <label htmlFor={id}>{label}</label>}
-      <input id={id} type='checkbox' {...register(field)}></input>
+      <input id={id} type='checkbox' {...register(field)} />
     </div>
   )
 }
@@ -109,7 +109,13 @@ export const AbilityScoreField = <TFormValues extends FieldValues>({
   return (
     <div>
       {label && <label htmlFor={scoreID}>{label}</label>}
-      <input id={scoreID} type='text' {...register(field)}></input>
+      <input
+        id={scoreID}
+        type='number'
+        {...register(field, {
+          valueAsNumber: true,
+        })}
+      ></input>
       <label htmlFor={bonusId}>Save Bonus</label>
       <input id={bonusId} type='checkbox' {...register(bonus)}></input>
     </div>

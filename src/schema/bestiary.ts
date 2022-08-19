@@ -23,9 +23,9 @@ export const creatureSchema = z.object({
   hitDice: z.string().nullable(),
 
   // conditions:
-  currentHp: z.number().int().nullable(),
-  tempHp: z.number().int().nullable(),
-  currentAc: z.number().int().nullable(),
+  // currentHp: z.number().int().nullable(),
+  // tempHp: z.number().int().nullable(),
+  // currentAc: z.number().int().nullable(),
 
   speedWalking: z.number().int(),
   speedClimbing: z.number().int().nullable(),

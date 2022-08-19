@@ -67,4 +67,9 @@ export const excountersWithNewActorsSchema = encountersSchema.merge(
   z.object({ actors: z.array(newActorsSchema) })
 )
 
+export const newExcountersWithNewActorsSchema = newEncountersSchema.merge(
+  z.object({ actors: z.array(newActorsSchema) })
+)
+
 export type EncountersWithActorsSchemaType = z.TypeOf<typeof excountersWithActorsSchema>
+export type NewExcountersWithNewActorsSchemaType = z.TypeOf<typeof newExcountersWithNewActorsSchema>

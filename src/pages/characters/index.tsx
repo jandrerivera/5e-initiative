@@ -23,11 +23,19 @@ const CharactersList = () => {
       <ul>
         {PCs.map((character) => (
           <li key={character.id} className='border p-2'>
-            <div>Name: {character.name}</div>
-            <div>Type: {character.type}</div>
-            <div>ID: {character.id}</div>
-            <Link href={`/characters/edit/${character.id}`}>Edit</Link>
-            <div onClick={() => handleDelete(character.id)}>Delete</div>
+            <div>{character.name}</div>
+            <div>
+              {character.race} {character.characterClass}
+            </div>
+            <Link href={`/characters/edit/${character.id}`}>
+              <a className='inline-block p-2 border rounded bg-slate-100'>Edit</a>
+            </Link>
+            <div
+              onClick={() => handleDelete(character.id)}
+              className='inline-block p-2 border rounded bg-slate-100'
+            >
+              Delete
+            </div>
           </li>
         ))}
       </ul>
@@ -37,11 +45,19 @@ const CharactersList = () => {
       <ul>
         {NPCs.map((character) => (
           <li key={character.id} className='border p-2'>
-            <div>Name: {character.name}</div>
-            <div>Type: {character.type}</div>
-            <div>ID: {character.id}</div>
-            <Link href={`/characters/edit/${character.id}`}>Edit</Link>
-            <div onClick={() => handleDelete(character.id)}>Delete</div>
+            <div>{character.name}</div>
+            <div>
+              {character.creatureSize} {character.creatureType}
+            </div>
+            <Link href={`/characters/edit/${character.id}`}>
+              <a className='inline-block p-2 border rounded bg-slate-100'>Edit</a>
+            </Link>
+            <div
+              onClick={() => handleDelete(character.id)}
+              className='inline-block p-2 border rounded bg-slate-100'
+            >
+              Delete
+            </div>
           </li>
         ))}
       </ul>

@@ -1,11 +1,11 @@
-import { TRPCError } from '@trpc/server';
-import { createProtectedRouter } from './trpc/createProtectedRouter';
-import { z } from 'zod';
+import { TRPCError } from '@trpc/server'
+import { createProtectedRouter } from './trpc/createProtectedRouter'
+import { z } from 'zod'
 import {
   deleteCreatureSchema,
   creatureWithJoinsSchema,
   newCreatureWithJoinsSchema,
-} from '../../schema/bestiary';
+} from '../../schema/bestiary'
 
 export const bestiaryRouter = createProtectedRouter()
   .mutation('create', {
@@ -20,9 +20,9 @@ export const bestiaryRouter = createProtectedRouter()
         damageVulnerabilities,
         senses,
         languages,
-      } = input;
+      } = input
 
-      const userId = ctx.session.user.id;
+      const userId = ctx.session.user.id
 
       const newCreature = await ctx.prisma.creatures.create({
         data: {
@@ -53,9 +53,9 @@ export const bestiaryRouter = createProtectedRouter()
             createMany: { data: [...languages] },
           },
         },
-      });
+      })
 
-      return newCreature;
+      return newCreature
     },
   })
   .mutation('update', {
@@ -73,10 +73,10 @@ export const bestiaryRouter = createProtectedRouter()
         damageVulnerabilities,
         senses,
         languages,
-      } = input;
+      } = input
 
       if (fromSRD) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot edit entries from SRD' });
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot edit entries from SRD' })
       }
 
       await Promise.all([
@@ -87,7 +87,7 @@ export const bestiaryRouter = createProtectedRouter()
         ctx.prisma.creatureDamageResistances.deleteMany({ where: { creatureId: id } }),
         ctx.prisma.creatureDamageVulnerabilities.deleteMany({ where: { creatureId: id } }),
         ctx.prisma.creatureSenses.deleteMany({ where: { creatureId: id } }),
-      ]);
+      ])
 
       const updatedCreature = await ctx.prisma.creatures.update({
         where: { id },
@@ -118,23 +118,22 @@ export const bestiaryRouter = createProtectedRouter()
             createMany: { data: [...languages] },
           },
         },
-      });
+      })
 
-      return updatedCreature;
+      return updatedCreature
     },
   })
   .mutation('delete', {
     input: deleteCreatureSchema,
     async resolve({ ctx, input }) {
-      const { id, fromSRD } = input;
+      const { id, fromSRD } = input
 
       if (fromSRD) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot delete entries from SRD' });
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot delete entries from SRD' })
       }
-      await ctx.prisma.creatures.delete({ where: { id } });
+      await ctx.prisma.creatures.delete({ where: { id } })
     },
   })
-
   .query('get-all', {
     async resolve({ ctx }) {
       return await ctx.prisma.creatures.findMany({
@@ -149,7 +148,7 @@ export const bestiaryRouter = createProtectedRouter()
           skills: true,
           languages: true,
         },
-      });
+      })
     },
   })
   .query('get-all-from-srd', {
@@ -166,11 +165,11 @@ export const bestiaryRouter = createProtectedRouter()
           skills: true,
           languages: true,
         },
-      });
+      })
     },
   })
   .query('get-all-grouped-by-srd', {
-    async resolve({ ctx }) {
+    async resolve({ ctx, input }) {
       const fromSRD = await ctx.prisma.creatures.findMany({
         where: { fromSRD: true },
         include: {
@@ -183,7 +182,7 @@ export const bestiaryRouter = createProtectedRouter()
           skills: true,
           languages: true,
         },
-      });
+      })
 
       const customCreatures = await ctx.prisma.creatures.findMany({
         where: { fromSRD: false },
@@ -197,12 +196,47 @@ export const bestiaryRouter = createProtectedRouter()
           skills: true,
           languages: true,
         },
-      });
+      })
 
       return {
         fromSRD,
         customCreatures,
-      };
+      }
+    },
+  })
+
+  .query('get-all-paginated', {
+    input: z.object({
+      fromSrd: z.boolean().optional().default(false),
+      page: z.number().optional().default(0),
+      limit: z.number().optional().default(5),
+    }),
+    async resolve({ ctx, input }) {
+      const currentPage = Math.max(input.page * input.limit, 0)
+
+      const count = await ctx.prisma.creatures.count({ where: { fromSRD: input.fromSrd } })
+
+      const creatures = await ctx.prisma.creatures.findMany({
+        where: { fromSRD: input.fromSrd },
+        skip: currentPage,
+        take: input.limit,
+        include: {
+          conditionImmunities: true,
+          damageImmunities: true,
+          damageResistances: true,
+          damageVulnerabilities: true,
+          savingThrows: true,
+          senses: true,
+          skills: true,
+          languages: true,
+        },
+      })
+
+      return {
+        creatures,
+        count,
+        hasMore: currentPage + input.limit <= count,
+      }
     },
   })
   .query('get-unique-by-id', {
@@ -211,7 +245,7 @@ export const bestiaryRouter = createProtectedRouter()
     }),
     resolve({ ctx, input }) {
       if (!input) {
-        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Bad Request' });
+        throw new TRPCError({ code: 'BAD_REQUEST', message: 'Bad Request' })
       }
 
       return ctx.prisma.creatures.findUnique({
@@ -226,6 +260,6 @@ export const bestiaryRouter = createProtectedRouter()
           skills: true,
           languages: true,
         },
-      });
+      })
     },
-  });
+  })
