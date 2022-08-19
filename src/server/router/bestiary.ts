@@ -134,77 +134,6 @@ export const bestiaryRouter = createProtectedRouter()
       await ctx.prisma.creatures.delete({ where: { id } })
     },
   })
-  .query('get-all', {
-    async resolve({ ctx }) {
-      return await ctx.prisma.creatures.findMany({
-        where: { fromSRD: false },
-        include: {
-          conditionImmunities: true,
-          damageImmunities: true,
-          damageResistances: true,
-          damageVulnerabilities: true,
-          savingThrows: true,
-          senses: true,
-          skills: true,
-          languages: true,
-        },
-      })
-    },
-  })
-  .query('get-all-from-srd', {
-    async resolve({ ctx }) {
-      return await ctx.prisma.creatures.findMany({
-        where: { fromSRD: true },
-        include: {
-          conditionImmunities: true,
-          damageImmunities: true,
-          damageResistances: true,
-          damageVulnerabilities: true,
-          savingThrows: true,
-          senses: true,
-          skills: true,
-          languages: true,
-        },
-      })
-    },
-  })
-  .query('get-all-grouped-by-srd', {
-    async resolve({ ctx, input }) {
-      const fromSRD = await ctx.prisma.creatures.findMany({
-        where: { fromSRD: true },
-        include: {
-          conditionImmunities: true,
-          damageImmunities: true,
-          damageResistances: true,
-          damageVulnerabilities: true,
-          savingThrows: true,
-          senses: true,
-          skills: true,
-          languages: true,
-        },
-      })
-
-      const customCreatures = await ctx.prisma.creatures.findMany({
-        where: { fromSRD: false },
-        include: {
-          conditionImmunities: true,
-          damageImmunities: true,
-          damageResistances: true,
-          damageVulnerabilities: true,
-          savingThrows: true,
-          senses: true,
-          skills: true,
-          languages: true,
-        },
-      })
-
-      return {
-        fromSRD,
-        customCreatures,
-      }
-    },
-  })
-
   .query('get-all-paginated', {
     input: z.object({
       fromSrd: z.boolean().optional().default(false),
@@ -220,16 +149,6 @@ export const bestiaryRouter = createProtectedRouter()
         where: { fromSRD: input.fromSrd },
         skip: currentPage,
         take: input.limit,
-        include: {
-          conditionImmunities: true,
-          damageImmunities: true,
-          damageResistances: true,
-          damageVulnerabilities: true,
-          savingThrows: true,
-          senses: true,
-          skills: true,
-          languages: true,
-        },
       })
 
       return {

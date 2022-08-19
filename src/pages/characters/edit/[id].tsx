@@ -10,21 +10,26 @@ const EditCharacterPage: ProtectedNextPage = () => {
   const router = useRouter()
   const { id } = router.query
 
-  const { data } = trpc.useQuery(['character.get-unique-by-id', { id: id as string }])
+  const { data, status, error } = trpc.useQuery([
+    'character.get-unique-by-id',
+    { id: id as string },
+  ])
 
-  const { mutate, isLoading, error } = trpc.useMutation(['character.update'])
+  const { mutate, isLoading, error: mutateError } = trpc.useMutation(['character.update'])
 
   const onSubmit: SubmitHandler<CharacterSchemaType> = (data) => {
     mutate(data)
     console.log(data)
   }
 
-  if (!data) return <>Character not found</>
+  if (status === 'error') return <>Error: {error.message}</>
+  if (status === 'loading') return <>Loading...</>
+  if (!data) return <>Encounter not found</>
 
   return (
     <div>
       <h1 className='text-3xl'>Edit Character</h1>
-      {error && <div>Error: {error.message}</div>}
+      {mutateError && <div>Error: {mutateError.message}</div>}
       <CharacterForm formData={data} onSubmit={onSubmit} loading={isLoading} />
     </div>
   )
