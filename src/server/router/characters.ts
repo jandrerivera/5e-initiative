@@ -45,6 +45,13 @@ export const characterRouter = createProtectedRouter()
       })
     },
   })
+  .query('get-all', {
+    async resolve({ ctx }) {
+      const userId = ctx.session.user.id
+
+      return await ctx.prisma.character.findMany()
+    },
+  })
   .query('get-all-grouped-by-type', {
     async resolve({ ctx }) {
       const userId = ctx.session.user.id

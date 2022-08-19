@@ -1,68 +1,69 @@
-import { string } from 'zod';
-import { data } from './monsters';
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import { string } from 'zod'
+import { data } from './monsters'
+import { characters } from './characters'
+import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
 
-export const newData = data.map((monster) => {
+export const srdMonsterData = data.map((monster) => {
   const parseString = (val: string | undefined): number => {
-    if (!val || val === undefined) return 0;
-    return parseInt(val.split(' ')[0] as string);
-  };
+    if (!val || val === undefined) return 0
+    return parseInt(val.split(' ')[0] as string)
+  }
 
   const parseSenses = (senses: Record<string, string | number | undefined>) => {
-    let sensesArr = [];
+    let sensesArr = []
     for (let key in senses) {
-      if (!senses[key]) return;
-      let value = senses[key] as string;
-      sensesArr.push({ type: key.replace('_', ' '), value: `${value}` });
+      if (!senses[key]) return
+      let value = senses[key] as string
+      sensesArr.push({ type: key.replace('_', ' '), value: `${value}` })
     }
 
-    return sensesArr;
-  };
+    return sensesArr
+  }
 
   const parseLanguages = (lang: string) => {
-    type TLang = { name: string; level: 'speaks' | 'understands'; exception: string };
-    let langArr: TLang[] = [];
+    type TLang = { name: string; level: 'speaks' | 'understands'; exception: string }
+    let langArr: TLang[] = []
 
-    let cleanLang = lang.replace(' and ', ', ').replace(',,', ',');
+    let cleanLang = lang.replace(' and ', ', ').replace(',,', ',')
 
-    const [speaks, understands] = cleanLang.split('understands ');
+    const [speaks, understands] = cleanLang.split('understands ')
 
     if (speaks) {
-      const speaksArr = speaks.split(',');
+      const speaksArr = speaks.split(',')
 
       speaksArr.forEach((v) => {
-        langArr.push({ name: v.trim(), level: 'speaks', exception: '' });
-      });
+        langArr.push({ name: v.trim(), level: 'speaks', exception: '' })
+      })
     }
 
     if (understands) {
-      let butCantIt = understands.trim().indexOf("but can't speak it");
-      let exception = butCantIt ? `but can't speak it` : `but can't speak`;
+      let butCantIt = understands.trim().indexOf("but can't speak it")
+      let exception = butCantIt ? `but can't speak it` : `but can't speak`
 
-      const understandsArr = understands.split(',');
+      const understandsArr = understands.split(',')
       understandsArr.forEach((v) => {
         let name = v
           .trim()
           .replace("but can't speak it", '')
           .replace("but doesn't speak it", '')
           .replace("but can't speak", '')
-          .trim();
+          .trim()
 
-        langArr.push({ name, level: 'understands', exception });
-      });
+        langArr.push({ name, level: 'understands', exception })
+      })
     }
 
-    return langArr;
-  };
+    return langArr
+  }
 
   const prof = monster.proficiencies.map(({ proficiency, value }) => ({
     type: proficiency.name,
     value: `${value}`,
-  }));
+  }))
 
-  const saving = prof.filter((skill) => skill.type.split('Saving Throw: ')[1]);
-  const skills = prof.filter((skill) => skill.type.split('Skill: ')[1]);
+  const saving = prof.filter((skill) => skill.type.split('Saving Throw: ')[1])
+  const skills = prof.filter((skill) => skill.type.split('Skill: ')[1])
 
   return {
     // id: monster.index,
@@ -98,11 +99,11 @@ export const newData = data.map((monster) => {
     })),
     skills: skills.map(({ type, value }) => ({ value, type: type.split('Skill: ')[1] || '' })),
     languages: parseLanguages(monster.languages),
-  };
-});
+  }
+})
 
 async function main() {
-  newData.forEach(async (creature) => {
+  srdMonsterData.forEach(async (creature) => {
     const {
       savingThrows,
       skills,
@@ -112,9 +113,9 @@ async function main() {
       damageVulnerabilities,
       senses,
       languages,
-    } = creature;
+    } = creature
 
-    const newCreature = await prisma.creatures.create({
+    await prisma.creatures.create({
       data: {
         ...creature,
         savingThrows: {
@@ -142,15 +143,21 @@ async function main() {
           createMany: { data: [...languages] },
         },
       },
-    });
-  });
+    })
+  })
+
+  characters.forEach(async (character) => {
+    await prisma.character.create({
+      data: character,
+    })
+  })
 }
 
 main()
   .catch((e) => {
-    console.error(e);
-    process.exit(1);
+    console.error(e)
+    process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })
