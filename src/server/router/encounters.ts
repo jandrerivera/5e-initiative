@@ -12,14 +12,22 @@ export const encountersRouter = createProtectedRouter()
     input: newExcountersWithNewActorsSchema,
     async resolve({ ctx, input }) {
       const userId = ctx.session.user.id
-      const { actors } = input
+
+      const actors = [...input.friendlyActors, ...input.enemyActors]
+
+      //Recategorize Actors by their setting
+      const friendlyActors = actors.filter((actor) => actor.type !== 'enemy')
+      const enemyActors = actors.filter((actor) => actor.type === 'enemy')
 
       return await ctx.prisma.encounters.create({
         data: {
           ...input,
           createdById: userId,
-          actors: {
-            createMany: { data: [...actors] },
+          friendlyActors: {
+            createMany: { data: [...friendlyActors] },
+          },
+          enemyActors: {
+            createMany: { data: [...enemyActors] },
           },
         },
       })
@@ -28,16 +36,26 @@ export const encountersRouter = createProtectedRouter()
   .mutation('update', {
     input: excountersWithNewActorsSchema,
     async resolve({ ctx, input }) {
-      const { id, actors } = input
+      const { id } = input
 
-      await ctx.prisma.actors.deleteMany({ where: { encountersId: id } })
+      const actors = [...input.friendlyActors, ...input.enemyActors]
+
+      //Recategorize Actors by their setting
+      const friendlyActors = actors.filter((actor) => actor.type !== 'enemy')
+      const enemyActors = actors.filter((actor) => actor.type === 'enemy')
+
+      await ctx.prisma.friendlyActors.deleteMany({ where: { encountersId: id } })
+      await ctx.prisma.enemyActors.deleteMany({ where: { encountersId: id } })
 
       return await ctx.prisma.encounters.update({
         where: { id },
         data: {
           ...input,
-          actors: {
-            createMany: { data: [...actors] },
+          friendlyActors: {
+            createMany: { data: [...friendlyActors] },
+          },
+          enemyActors: {
+            createMany: { data: [...enemyActors] },
           },
         },
       })
@@ -62,7 +80,13 @@ export const encountersRouter = createProtectedRouter()
       const encounter = await ctx.prisma.encounters.findUnique({
         where: { id: `${input?.id}` },
         include: {
-          actors: {
+          friendlyActors: {
+            include: {
+              character: true,
+              creature: true,
+            },
+          },
+          enemyActors: {
             include: {
               character: true,
               creature: true,
@@ -82,25 +106,5 @@ export const encountersRouter = createProtectedRouter()
         where: { createdById: userId },
         orderBy: { createdAt: 'asc' },
       })
-    },
-  })
-  .query('get-characters-grouped-by-type', {
-    async resolve({ ctx }) {
-      const userId = ctx.session.user.id
-
-      const PCs = await ctx.prisma.character.findMany({
-        where: { createdById: userId, AND: { type: 'pc' } },
-        orderBy: { createdAt: 'asc' },
-      })
-
-      const NPCs = await ctx.prisma.character.findMany({
-        where: { createdById: userId, AND: { type: 'npc' } },
-        orderBy: { createdAt: 'asc' },
-      })
-
-      return {
-        PCs,
-        NPCs,
-      }
     },
   })

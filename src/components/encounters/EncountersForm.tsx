@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   useForm,
   SubmitHandler,
@@ -12,6 +12,8 @@ import { CheckboxInput, SelectInput, TextAreaInput, TextInput } from '../FormInp
 import PaginationControls from '../PaginationControls'
 
 type TForm = EncountersWithActorsSchemaType
+type FriendlyActors = EncountersWithActorsSchemaType['friendlyActors']
+type EnemyActors = EncountersWithActorsSchemaType['enemyActors']
 
 type EncountersFormProps = {
   formData?: DeepPartial<TForm>
@@ -20,15 +22,28 @@ type EncountersFormProps = {
 }
 
 const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) => {
-  const { control, register, handleSubmit, watch } = useForm<TForm>({ defaultValues: formData })
-  const { fields, append, remove } = useFieldArray({ control, name: 'actors' })
+  const { data, isLoading } = trpc.useQuery(['character.get-all-grouped-by-type'])
 
-  const characterQuery = trpc.useQuery(['encounters.get-characters-grouped-by-type'])
+  const { control, register, handleSubmit, setValue } = useForm<TForm>({
+    defaultValues: formData,
+  })
+  const friendlyActorsFieldArray = useFieldArray({ control, name: 'friendlyActors' })
+  const enemyActorsFieldArray = useFieldArray({ control, name: 'enemyActors' })
 
-  if (characterQuery.isLoading) return <>Loading...</>
-  if (!characterQuery.data) return <>No Data</>
+  useEffect(() => {
+    if (formData?.friendlyActors) {
+      setValue('friendlyActors', formData.friendlyActors as FriendlyActors)
+    }
 
-  const { PCs, NPCs } = characterQuery.data
+    if (formData?.enemyActors) {
+      setValue('enemyActors', formData.enemyActors as EnemyActors)
+    }
+  }, [formData, setValue])
+
+  if (isLoading) return <>Loading...</>
+  if (!data) return <>No Data</>
+
+  const { PCs, NPCs } = data
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -44,12 +59,12 @@ const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) =>
                   type='button'
                   className='bg-slate-200 p-2'
                   onClick={() =>
-                    append({
+                    friendlyActorsFieldArray.append({
                       characterId: character.id,
-                      type: 'player',
-                      initiative: null,
                       creatureId: null,
-                      character,
+                      type: 'friendly',
+                      initiative: null,
+                      alias: null,
                     })
                   }
                 >
@@ -67,15 +82,30 @@ const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) =>
                 <button
                   type='button'
                   className='bg-slate-200 p-2'
-                  onClick={() =>
-                    append({
-                      characterId: character.id,
-                      type: 'friendly',
-                      initiative: null,
-                      creatureId: null,
-                      character,
-                    })
-                  }
+                  onClick={() => {
+                    if (character.isFriendly) {
+                      friendlyActorsFieldArray.append({
+                        characterId: character.id,
+                        creatureId: null,
+                        type: 'friendly',
+                        initiative: null,
+                        alias: null,
+                        character: character,
+                        creature: null,
+                      })
+                    }
+                    if (!character.isFriendly) {
+                      enemyActorsFieldArray.append({
+                        characterId: character.id,
+                        creatureId: null,
+                        type: 'enemy',
+                        initiative: null,
+                        alias: null,
+                        character: character,
+                        creature: null,
+                      })
+                    }
+                  }}
                 >
                   Add Actor
                 </button>
@@ -84,37 +114,81 @@ const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) =>
           </ul>
 
           <h2 className='text-xl'>Custom Creatures</h2>
-          <CreatureList append={append} />
+          <CreatureList append={enemyActorsFieldArray.append} />
           <h2 className='text-xl'>SRD Creatures</h2>
-          <CreatureList fromSrd={true} append={append} />
+          <CreatureList fromSrd={true} append={enemyActorsFieldArray.append} />
         </div>
+
         <div>
           <h3 className='text-xl font-bold'>Actors</h3>
-          <div className='border p-2'>
-            <ul>
-              {fields.map((field, i) => (
-                <div key={field.id}>
+          <div>
+            <h2 className='text-xl'>Friendlies</h2>
+            <ul className='border p-2'>
+              {friendlyActorsFieldArray.fields.map((actor, i) => (
+                <div key={actor.id}>
                   <span className='text-lg font-bold'>
-                    {field.character?.name}
-                    {field.creature?.name}
+                    {actor.character?.name || actor.creature?.name}
                   </span>
                   <SelectInput
                     label='Type'
-                    field={`actors.${i}.type`}
+                    field={`friendlyActors.${i}.type`}
                     options={[
-                      { value: 'player', label: 'Player' },
                       { value: 'friendly', label: 'Friendly' },
-                      { value: 'monster', label: 'Monster' },
+                      { value: 'enemy', label: 'Enemy' },
                     ]}
                     register={register}
                   />
                   <CheckboxInput
                     label='Visible'
-                    field={`actors.${i}.visible`}
+                    field={`friendlyActors.${i}.visible`}
                     register={register}
                   />
-                  <TextAreaInput label='Notes' field={`actors.${i}.notes`} register={register} />
-                  <button type='button' className='bg-slate-200 p-2' onClick={() => remove(i)}>
+                  <TextAreaInput
+                    label='Notes'
+                    field={`friendlyActors.${i}.notes`}
+                    register={register}
+                  />
+                  <button
+                    type='button'
+                    className='bg-slate-200 p-2'
+                    onClick={() => friendlyActorsFieldArray.remove(i)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </ul>
+            <h2 className='text-xl'>Enemies</h2>
+            <ul className='border p-2'>
+              {enemyActorsFieldArray.fields.map((actor, i) => (
+                <div key={actor.id}>
+                  <span className='text-lg font-bold'>
+                    {actor.character?.name || actor.creature?.name}
+                  </span>
+                  <SelectInput
+                    label='Type'
+                    field={`enemyActors.${i}.type`}
+                    options={[
+                      { value: 'friendly', label: 'Friendly' },
+                      { value: 'enemy', label: 'Enemy' },
+                    ]}
+                    register={register}
+                  />
+                  <CheckboxInput
+                    label='Visible'
+                    field={`enemyActors.${i}.visible`}
+                    register={register}
+                  />
+                  <TextAreaInput
+                    label='Notes'
+                    field={`enemyActors.${i}.notes`}
+                    register={register}
+                  />
+                  <button
+                    type='button'
+                    className='bg-slate-200 p-2'
+                    onClick={() => enemyActorsFieldArray.remove(i)}
+                  >
                     Remove
                   </button>
                 </div>
@@ -128,7 +202,7 @@ const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) =>
   )
 }
 
-const creaturesPerPage = 30
+const creaturesPerPage = 5
 
 const CreatureList = ({
   fromSrd = false,
@@ -161,11 +235,13 @@ const CreatureList = ({
               className='bg-slate-200 p-1'
               onClick={() =>
                 append({
-                  type: 'monster',
-                  initiative: null,
                   creatureId: creature.id,
                   characterId: null,
-                  creature,
+                  initiative: null,
+                  type: 'enemy',
+                  alias: null,
+                  character: null,
+                  creature: creature,
                 })
               }
             >

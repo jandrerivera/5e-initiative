@@ -1,14 +1,16 @@
 import { useRouter } from 'next/router'
 import { SubmitHandler } from 'react-hook-form'
 import EncountersForm from '../../components/encounters/EncountersForm'
-import { NewEncountersSchemaType } from '../../schema/encounters'
+import { NewExcountersWithNewActorsSchemaType } from '../../schema/encounters'
 import { trpc } from '../../utils/trpc'
 import { ProtectedNextPage } from '../_app'
 
 export const defaultValues = {
-  status: 'ready',
+  status: 'ready' as 'ready' | 'paused' | 'completed',
   currentRound: 0,
   currentTurn: 0,
+  friendlyActors: [],
+  enemyActors: [],
 }
 
 const NewEncountersPage: ProtectedNextPage = () => {
@@ -20,7 +22,7 @@ const NewEncountersPage: ProtectedNextPage = () => {
     },
   })
 
-  const onSubmit: SubmitHandler<NewEncountersSchemaType> = (data) => {
+  const onSubmit: SubmitHandler<NewExcountersWithNewActorsSchemaType> = (data) => {
     mutate(data)
     console.log(data)
   }
@@ -30,7 +32,7 @@ const NewEncountersPage: ProtectedNextPage = () => {
       <h1 className='text-3xl'>New Character</h1>
       {error && <div>Error: {error.message}</div>}
 
-      <EncountersForm formData={defaultValues} onSubmit={onSubmit} loading={isLoading} />
+      <EncountersForm onSubmit={onSubmit} formData={defaultValues} />
     </div>
   )
 }

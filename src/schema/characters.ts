@@ -5,7 +5,7 @@ export const characterSchema = z.object({
   name: z.string(),
   playerName: z.string().nullable(),
 
-  createdById: z.string().cuid(),
+  createdById: z.string().cuid(), //.nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 

@@ -16,7 +16,7 @@ model Character {
     playerName String?
 
     createdById String
-    createdBy   User?  @relation(fields: [createdById], references: [id])
+    createdBy   User   @relation(fields: [createdById], references: [id])
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -111,7 +111,8 @@ model Character {
     skillSurvivalProficient       Boolean @default(false)
     skillSurvivalExpertise        Boolean @default(false)
 
-    Actors Actors[]
+    friendlyActors FriendlyActors[]
+    enemyActors    EnemyActors[]
 }
 
 enum CharacterType {
@@ -175,7 +176,8 @@ model Creatures {
     senses                CreatureSenses[]
     languages             CreatureLanguages[]
 
-    actors Actors[]
+    friendlyActors FriendlyActors[]
+    enemyActors    EnemyActors[]
 }
 
 model CreatureSavingThrows {
@@ -253,8 +255,8 @@ enum CreatureLanguagesProficiency {
 }
 
 model Encounters {
-    id   String @id @default(cuid())
-    name String
+    id   String  @id @default(cuid())
+    name String?
 
     status       EncounterStatus @default(ready)
     currentRound Int             @default(0)
@@ -266,7 +268,8 @@ model Encounters {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    actors Actors[]
+    friendlyActors FriendlyActors[]
+    enemyActors    EnemyActors[]
 }
 
 enum EncounterStatus {
@@ -275,9 +278,31 @@ enum EncounterStatus {
     completed
 }
 
-model Actors {
-    id   String    @id @default(cuid())
-    type ActorType
+model FriendlyActors {
+    id    String    @id @default(cuid())
+    type  ActorType
+    alias String?
+
+    initiative    Int?
+    concentration Boolean @default(false)
+    transformed   Boolean @default(false)
+    visible       Boolean @default(true)
+    notes         String?
+
+    characterId String?
+    character   Character? @relation(fields: [characterId], references: [id])
+
+    creatureId String?
+    creature   Creatures? @relation(fields: [creatureId], references: [id])
+
+    encountersId String
+    encounters   Encounters @relation(fields: [encountersId], references: [id], onDelete: Cascade)
+}
+
+model EnemyActors {
+    id    String    @id @default(cuid())
+    type  ActorType
+    alias String?
 
     initiative    Int?
     concentration Boolean @default(false)
@@ -296,9 +321,8 @@ model Actors {
 }
 
 enum ActorType {
-    player
     friendly
-    monster
+    enemy
 }
 
 // Necessary for Next auth

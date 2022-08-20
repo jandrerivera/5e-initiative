@@ -4,7 +4,7 @@ import { creatureSchema } from './bestiary'
 
 export const encountersSchema = z.object({
   id: z.string().cuid(),
-  name: z.string(),
+  name: z.string().nullable(),
   status: z.enum(['ready', 'paused', 'completed']),
   currentRound: z.number().int(),
   currentTurn: z.number().int(),
@@ -29,7 +29,9 @@ export type DeleteEncountersSchemaType = z.TypeOf<typeof deleteEncountersSchema>
 
 export const actorsSchema = z.object({
   id: z.string().cuid(),
-  type: z.enum(['player', 'friendly', 'monster']),
+  type: z.enum(['friendly', 'enemy']),
+  alias: z.string().nullable(),
+
   initiative: z.number().nullable(),
   concentration: z.boolean().default(false),
   transformed: z.boolean().default(true),
@@ -55,20 +57,31 @@ export type DeleteActorsSchemaType = z.TypeOf<typeof deleteEncountersSchema>
 
 export const excountersWithActorsSchema = encountersSchema.merge(
   z.object({
-    actors: z.array(
+    friendlyActors: z.array(
       actorsSchema
-        .merge(z.object({ character: characterSchema }))
-        .merge(z.object({ creature: creatureSchema }))
+        .merge(z.object({ character: characterSchema.nullable() }))
+        .merge(z.object({ creature: creatureSchema.nullable() }))
+    ),
+    enemyActors: z.array(
+      actorsSchema
+        .merge(z.object({ character: characterSchema.nullable() }))
+        .merge(z.object({ creature: creatureSchema.nullable() }))
     ),
   })
 )
 
 export const excountersWithNewActorsSchema = encountersSchema.merge(
-  z.object({ actors: z.array(newActorsSchema) })
+  z.object({
+    friendlyActors: z.array(newActorsSchema),
+    enemyActors: z.array(newActorsSchema),
+  })
 )
 
 export const newExcountersWithNewActorsSchema = newEncountersSchema.merge(
-  z.object({ actors: z.array(newActorsSchema) })
+  z.object({
+    friendlyActors: z.array(newActorsSchema),
+    enemyActors: z.array(newActorsSchema),
+  })
 )
 
 export type EncountersWithActorsSchemaType = z.TypeOf<typeof excountersWithActorsSchema>
