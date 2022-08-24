@@ -13,21 +13,14 @@ export const encountersRouter = createProtectedRouter()
     async resolve({ ctx, input }) {
       const userId = ctx.session.user.id
 
-      const actors = [...input.friendlyActors, ...input.enemyActors]
-
-      //Recategorize Actors by their setting
-      const friendlyActors = actors.filter((actor) => actor.type !== 'enemy')
-      const enemyActors = actors.filter((actor) => actor.type === 'enemy')
+      const { actors, ...encounter } = input
 
       return await ctx.prisma.encounters.create({
         data: {
-          ...input,
+          ...encounter,
           createdById: userId,
-          friendlyActors: {
-            createMany: { data: [...friendlyActors] },
-          },
-          enemyActors: {
-            createMany: { data: [...enemyActors] },
+          actors: {
+            createMany: { data: actors },
           },
         },
       })
@@ -36,26 +29,16 @@ export const encountersRouter = createProtectedRouter()
   .mutation('update', {
     input: excountersWithNewActorsSchema,
     async resolve({ ctx, input }) {
-      const { id } = input
+      const { id, actors, ...encounter } = input
 
-      const actors = [...input.friendlyActors, ...input.enemyActors]
-
-      //Recategorize Actors by their setting
-      const friendlyActors = actors.filter((actor) => actor.type !== 'enemy')
-      const enemyActors = actors.filter((actor) => actor.type === 'enemy')
-
-      await ctx.prisma.friendlyActors.deleteMany({ where: { encountersId: id } })
-      await ctx.prisma.enemyActors.deleteMany({ where: { encountersId: id } })
+      await ctx.prisma.actors.deleteMany({ where: { encountersId: id } })
 
       return await ctx.prisma.encounters.update({
         where: { id },
         data: {
-          ...input,
-          friendlyActors: {
-            createMany: { data: [...friendlyActors] },
-          },
-          enemyActors: {
-            createMany: { data: [...enemyActors] },
+          ...encounter,
+          actors: {
+            createMany: { data: actors },
           },
         },
       })
@@ -80,13 +63,7 @@ export const encountersRouter = createProtectedRouter()
       const encounter = await ctx.prisma.encounters.findUnique({
         where: { id: `${input?.id}` },
         include: {
-          friendlyActors: {
-            include: {
-              character: true,
-              creature: true,
-            },
-          },
-          enemyActors: {
+          actors: {
             include: {
               character: true,
               creature: true,

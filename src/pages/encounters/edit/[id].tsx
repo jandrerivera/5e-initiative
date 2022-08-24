@@ -9,7 +9,6 @@ import EncountersForm from '../../../components/encounters/EncountersForm'
 
 const EditEncountersPage: ProtectedNextPage = () => {
   const router = useRouter()
-  const tctx = trpc.useContext()
 
   const { id } = router.query
 
@@ -24,7 +23,7 @@ const EditEncountersPage: ProtectedNextPage = () => {
 
   const onSubmit: SubmitHandler<EncountersWithActorsSchemaType> = (data) => {
     mutate(data)
-    console.log('derp')
+    // console.log('derp')
   }
 
   if (status === 'error') return <>Error: {error.message}</>

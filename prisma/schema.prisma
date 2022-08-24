@@ -111,8 +111,7 @@ model Character {
     skillSurvivalProficient       Boolean @default(false)
     skillSurvivalExpertise        Boolean @default(false)
 
-    friendlyActors FriendlyActors[]
-    enemyActors    EnemyActors[]
+    actors Actors[]
 }
 
 enum CharacterType {
@@ -176,8 +175,7 @@ model Creatures {
     senses                CreatureSenses[]
     languages             CreatureLanguages[]
 
-    friendlyActors FriendlyActors[]
-    enemyActors    EnemyActors[]
+    actors Actors[]
 }
 
 model CreatureSavingThrows {
@@ -268,8 +266,7 @@ model Encounters {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    friendlyActors FriendlyActors[]
-    enemyActors    EnemyActors[]
+    actors Actors[]
 }
 
 enum EncounterStatus {
@@ -278,28 +275,7 @@ enum EncounterStatus {
     completed
 }
 
-model FriendlyActors {
-    id    String    @id @default(cuid())
-    type  ActorType
-    alias String?
-
-    initiative    Int?
-    concentration Boolean @default(false)
-    transformed   Boolean @default(false)
-    visible       Boolean @default(true)
-    notes         String?
-
-    characterId String?
-    character   Character? @relation(fields: [characterId], references: [id])
-
-    creatureId String?
-    creature   Creatures? @relation(fields: [creatureId], references: [id])
-
-    encountersId String
-    encounters   Encounters @relation(fields: [encountersId], references: [id], onDelete: Cascade)
-}
-
-model EnemyActors {
+model Actors {
     id    String    @id @default(cuid())
     type  ActorType
     alias String?

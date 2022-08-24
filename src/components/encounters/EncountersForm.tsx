@@ -12,11 +12,9 @@ import { CheckboxInput, SelectInput, TextAreaInput, TextInput } from '../FormInp
 import PaginationControls from '../PaginationControls'
 
 type TForm = EncountersWithActorsSchemaType
-type FriendlyActors = EncountersWithActorsSchemaType['friendlyActors']
-type EnemyActors = EncountersWithActorsSchemaType['enemyActors']
 
 type EncountersFormProps = {
-  formData?: DeepPartial<TForm>
+  formData?: TForm
   onSubmit: SubmitHandler<TForm>
   loading?: boolean
 }
@@ -24,21 +22,16 @@ type EncountersFormProps = {
 const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) => {
   const { data, isLoading } = trpc.useQuery(['character.get-all-grouped-by-type'])
 
-  const { control, register, handleSubmit, setValue } = useForm<TForm>({
+  const { control, register, handleSubmit, watch, setValue } = useForm<TForm>({
     defaultValues: formData,
   })
-  const friendlyActorsFieldArray = useFieldArray({ control, name: 'friendlyActors' })
-  const enemyActorsFieldArray = useFieldArray({ control, name: 'enemyActors' })
 
-  useEffect(() => {
-    if (formData?.friendlyActors) {
-      setValue('friendlyActors', formData.friendlyActors as FriendlyActors)
-    }
+  const { append, remove } = useFieldArray({
+    control,
+    name: 'actors',
+  })
 
-    if (formData?.enemyActors) {
-      setValue('enemyActors', formData.enemyActors as EnemyActors)
-    }
-  }, [formData, setValue])
+  const actors = watch('actors')
 
   if (isLoading) return <>Loading...</>
   if (!data) return <>No Data</>
@@ -59,8 +52,9 @@ const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) =>
                   type='button'
                   className='bg-slate-200 p-2'
                   onClick={() =>
-                    friendlyActorsFieldArray.append({
+                    append({
                       characterId: character.id,
+                      character: character,
                       creatureId: null,
                       type: 'friendly',
                       initiative: null,
@@ -83,28 +77,15 @@ const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) =>
                   type='button'
                   className='bg-slate-200 p-2'
                   onClick={() => {
-                    if (character.isFriendly) {
-                      friendlyActorsFieldArray.append({
-                        characterId: character.id,
-                        creatureId: null,
-                        type: 'friendly',
-                        initiative: null,
-                        alias: null,
-                        character: character,
-                        creature: null,
-                      })
-                    }
-                    if (!character.isFriendly) {
-                      enemyActorsFieldArray.append({
-                        characterId: character.id,
-                        creatureId: null,
-                        type: 'enemy',
-                        initiative: null,
-                        alias: null,
-                        character: character,
-                        creature: null,
-                      })
-                    }
+                    append({
+                      characterId: character.id,
+                      creatureId: null,
+                      type: 'friendly',
+                      initiative: null,
+                      alias: null,
+                      character: character,
+                      creature: null,
+                    })
                   }}
                 >
                   Add Actor
@@ -114,85 +95,77 @@ const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) =>
           </ul>
 
           <h2 className='text-xl'>Custom Creatures</h2>
-          <CreatureList append={enemyActorsFieldArray.append} />
+          <CreatureList append={append} />
           <h2 className='text-xl'>SRD Creatures</h2>
-          <CreatureList fromSrd={true} append={enemyActorsFieldArray.append} />
+          <CreatureList fromSrd={true} append={append} />
         </div>
 
         <div>
-          <h3 className='text-xl font-bold'>Actors</h3>
+          <h3 className='text-xl font-bold'>Friendly Actors</h3>
           <div>
-            <h2 className='text-xl'>Friendlies</h2>
             <ul className='border p-2'>
-              {friendlyActorsFieldArray.fields.map((actor, i) => (
-                <div key={actor.id}>
-                  <span className='text-lg font-bold'>
-                    {actor.character?.name || actor.creature?.name}
-                  </span>
-                  <SelectInput
-                    label='Type'
-                    field={`friendlyActors.${i}.type`}
-                    options={[
-                      { value: 'friendly', label: 'Friendly' },
-                      { value: 'enemy', label: 'Enemy' },
-                    ]}
-                    register={register}
-                  />
-                  <CheckboxInput
-                    label='Visible'
-                    field={`friendlyActors.${i}.visible`}
-                    register={register}
-                  />
-                  <TextAreaInput
-                    label='Notes'
-                    field={`friendlyActors.${i}.notes`}
-                    register={register}
-                  />
-                  <button
-                    type='button'
-                    className='bg-slate-200 p-2'
-                    onClick={() => friendlyActorsFieldArray.remove(i)}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
+              {actors.map((actor, i) => {
+                if (actor.type !== 'friendly') return null
+                return (
+                  <div key={actor.id || i}>
+                    <span className='text-lg font-bold'>
+                      {actor.character?.name || actor.creature?.name}
+                    </span>
+                    <SelectInput
+                      label='Type'
+                      field={`actors.${i}.type`}
+                      options={[
+                        { value: 'friendly', label: 'Friendly' },
+                        { value: 'enemy', label: 'Enemy' },
+                      ]}
+                      register={register}
+                    />
+                    <CheckboxInput
+                      label='Visible'
+                      field={`actors.${i}.visible`}
+                      register={register}
+                    />
+                    <TextAreaInput label='Notes' field={`actors.${i}.notes`} register={register} />
+                    <button type='button' className='bg-slate-200 p-2' onClick={() => remove(i)}>
+                      Remove
+                    </button>
+                  </div>
+                )
+              })}
             </ul>
-            <h2 className='text-xl'>Enemies</h2>
+          </div>
+
+          <h3 className='text-xl font-bold'>Enemy Actors</h3>
+          <div>
             <ul className='border p-2'>
-              {enemyActorsFieldArray.fields.map((actor, i) => (
-                <div key={actor.id}>
-                  <span className='text-lg font-bold'>
-                    {actor.character?.name || actor.creature?.name}
-                  </span>
-                  <SelectInput
-                    label='Type'
-                    field={`enemyActors.${i}.type`}
-                    options={[
-                      { value: 'friendly', label: 'Friendly' },
-                      { value: 'enemy', label: 'Enemy' },
-                    ]}
-                    register={register}
-                  />
-                  <CheckboxInput
-                    label='Visible'
-                    field={`enemyActors.${i}.visible`}
-                    register={register}
-                  />
-                  <TextAreaInput
-                    label='Notes'
-                    field={`enemyActors.${i}.notes`}
-                    register={register}
-                  />
-                  <button
-                    type='button'
-                    className='bg-slate-200 p-2'
-                    onClick={() => enemyActorsFieldArray.remove(i)}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
+              {actors.map((actor, i) => {
+                if (actor.type !== 'enemy') return null
+                return (
+                  <div key={actor.id || i}>
+                    <span className='text-lg font-bold'>
+                      {actor.character?.name || actor.creature?.name}
+                    </span>
+                    <SelectInput
+                      label='Type'
+                      field={`actors.${i}.type`}
+                      options={[
+                        { value: 'friendly', label: 'Friendly' },
+                        { value: 'enemy', label: 'Enemy' },
+                      ]}
+                      register={register}
+                    />
+                    <CheckboxInput
+                      label='Visible'
+                      field={`actors.${i}.visible`}
+                      register={register}
+                    />
+                    <TextAreaInput label='Notes' field={`actors.${i}.notes`} register={register} />
+                    <button type='button' className='bg-slate-200 p-2' onClick={() => remove(i)}>
+                      Remove
+                    </button>
+                  </div>
+                )
+              })}
             </ul>
           </div>
         </div>
@@ -204,13 +177,9 @@ const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) =>
 
 const creaturesPerPage = 5
 
-const CreatureList = ({
-  fromSrd = false,
-  append,
-}: {
-  fromSrd?: boolean
-  append: UseFieldArrayAppend<TForm>
-}) => {
+type CreatureListProps = { fromSrd?: boolean; append: UseFieldArrayAppend<TForm> }
+
+const CreatureList = ({ fromSrd = false, append }: CreatureListProps) => {
   const [page, setPage] = useState(0)
 
   const { data, status, error } = trpc.useQuery([
@@ -220,8 +189,7 @@ const CreatureList = ({
 
   if (status === 'error') return <>Error: {error.message}</>
   if (status === 'loading') return <>Loading...</>
-  if (!data) return <>No Creatures</>
-  if (data.count <= 0) return <>No Creatures</>
+  if (!data || data.count <= 0) return <>No Creatures</>
 
   return (
     <div>

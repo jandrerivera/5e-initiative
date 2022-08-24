@@ -57,12 +57,7 @@ export type DeleteActorsSchemaType = z.TypeOf<typeof deleteEncountersSchema>
 
 export const excountersWithActorsSchema = encountersSchema.merge(
   z.object({
-    friendlyActors: z.array(
-      actorsSchema
-        .merge(z.object({ character: characterSchema.nullable() }))
-        .merge(z.object({ creature: creatureSchema.nullable() }))
-    ),
-    enemyActors: z.array(
+    actors: z.array(
       actorsSchema
         .merge(z.object({ character: characterSchema.nullable() }))
         .merge(z.object({ creature: creatureSchema.nullable() }))
@@ -72,15 +67,13 @@ export const excountersWithActorsSchema = encountersSchema.merge(
 
 export const excountersWithNewActorsSchema = encountersSchema.merge(
   z.object({
-    friendlyActors: z.array(newActorsSchema),
-    enemyActors: z.array(newActorsSchema),
+    actors: z.array(newActorsSchema),
   })
 )
 
 export const newExcountersWithNewActorsSchema = newEncountersSchema.merge(
   z.object({
-    friendlyActors: z.array(newActorsSchema),
-    enemyActors: z.array(newActorsSchema),
+    actors: z.array(newActorsSchema),
   })
 )
 
