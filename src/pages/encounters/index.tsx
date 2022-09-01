@@ -4,8 +4,9 @@ import { ProtectedNextPage } from '../_app'
 import { trpc } from '../../utils/trpc'
 
 const EncountersList = () => {
-  const { data, isLoading, refetch } = trpc.useQuery(['encounters.get-all-from-user'])
-  const { mutate, error } = trpc.useMutation('encounters.delete', { onSuccess: () => refetch() })
+  const { data, isLoading, refetch } = trpc.proxy.encounters.getAllFromUser.useQuery()
+
+  const { mutate, error } = trpc.proxy.encounters.delete.useMutation({ onSuccess: () => refetch() })
 
   if (isLoading) return <>Loading...</>
   if (!data) return <>No Data</>

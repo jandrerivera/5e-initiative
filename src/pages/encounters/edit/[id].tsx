@@ -12,12 +12,11 @@ const EditEncountersPage: ProtectedNextPage = () => {
 
   const { id } = router.query
 
-  const { data, status, error, refetch } = trpc.useQuery([
-    'encounters.get-unique-by-id-with-actors',
-    { id: id as string },
-  ])
+  const { data, status, error, refetch } = trpc.proxy.encounters.getUniqueByIdWithActors.useQuery({
+    id: id as string,
+  })
 
-  const { mutate, error: mutateError } = trpc.useMutation('encounters.update', {
+  const { mutate, error: mutateError } = trpc.proxy.encounters.update.useMutation({
     onSettled: () => refetch(),
   })
 

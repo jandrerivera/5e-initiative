@@ -1,25 +1,25 @@
-import { ProtectedNextPage } from '../../_app';
-import { trpc } from '../../../utils/trpc';
-import { useRouter } from 'next/router';
+import { ProtectedNextPage } from '../../_app'
+import { trpc } from '../../../utils/trpc'
+import { useRouter } from 'next/router'
 
-import { CreatureWithJoinsSchemaType } from '../../../schema/bestiary';
-import { SubmitHandler } from 'react-hook-form';
-import CreatureForm from '../../../components/bestiary/CreatureForm';
+import { CreatureWithJoinsSchemaType } from '../../../schema/bestiary'
+import { SubmitHandler } from 'react-hook-form'
+import CreatureForm from '../../../components/bestiary/CreatureForm'
 
 const EditCharacterPage: ProtectedNextPage = () => {
-  const router = useRouter();
-  const { id } = router.query;
+  const router = useRouter()
+  const { id } = router.query
 
-  const { data } = trpc.useQuery(['bestiary.get-unique-by-id', { id: id as string }]);
+  const { data } = trpc.proxy.bestiary.getUniqueById.useQuery({ id: id as string })
 
-  const { mutate, isLoading, error } = trpc.useMutation(['bestiary.update']);
+  const { mutate, isLoading, error } = trpc.proxy.bestiary.update.useMutation()
 
   const onSubmit: SubmitHandler<CreatureWithJoinsSchemaType> = (data) => {
-    if (data.fromSRD) return;
-    mutate(data);
-  };
+    if (data.fromSRD) return
+    mutate(data)
+  }
 
-  if (!data) return <>Character not found</>;
+  if (!data) return <>Character not found</>
 
   return (
     <div>
@@ -27,8 +27,8 @@ const EditCharacterPage: ProtectedNextPage = () => {
       {error && <div>Error: {error.message}</div>}
       <CreatureForm formData={data} onSubmit={onSubmit} loading={isLoading} />
     </div>
-  );
-};
-export default EditCharacterPage;
+  )
+}
+export default EditCharacterPage
 
-EditCharacterPage.requireAuth = true;
+EditCharacterPage.requireAuth = true

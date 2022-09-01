@@ -30,16 +30,16 @@ const creaturesPerPage = 20
 const UserCreaturesList = () => {
   const [page, setPage] = useState(0)
 
-  const { data, status, error, refetch } = trpc.useQuery([
-    'bestiary.get-all-paginated',
-    { page, limit: creaturesPerPage },
-  ])
+  const { data, status, error, refetch } = trpc.proxy.bestiary.getAllPaginated.useQuery({
+    page,
+    limit: creaturesPerPage,
+  })
 
   const {
     mutate,
     error: mutateError,
     isLoading: isMutating,
-  } = trpc.useMutation('bestiary.delete', {
+  } = trpc.proxy.bestiary.delete.useMutation({
     onSuccess: () => refetch(),
   })
 
@@ -85,10 +85,11 @@ const UserCreaturesList = () => {
 const SrdCreaturesList = () => {
   const [page, setPage] = useState(0)
 
-  const { data, status, error } = trpc.useQuery([
-    'bestiary.get-all-paginated',
-    { fromSrd: true, page, limit: creaturesPerPage },
-  ])
+  const { data, status, error } = trpc.proxy.bestiary.getAllPaginated.useQuery({
+    fromSrd: true,
+    page,
+    limit: creaturesPerPage,
+  })
 
   if (status === 'error') return <>Error: {error.message}</>
   if (status === 'loading') return <>Loading...</>

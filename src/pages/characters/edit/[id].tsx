@@ -10,12 +10,9 @@ const EditCharacterPage: ProtectedNextPage = () => {
   const router = useRouter()
   const { id } = router.query
 
-  const { data, status, error } = trpc.useQuery([
-    'character.get-unique-by-id',
-    { id: id as string },
-  ])
+  const { data, status, error } = trpc.proxy.character.getUniqueById.useQuery({ id: id as string })
 
-  const { mutate, isLoading, error: mutateError } = trpc.useMutation(['character.update'])
+  const { mutate, isLoading, error: mutateError } = trpc.proxy.character.update.useMutation()
 
   const onSubmit: SubmitHandler<CharacterSchemaType> = (data) => {
     mutate(data)

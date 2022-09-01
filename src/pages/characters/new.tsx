@@ -28,7 +28,7 @@ export const defaultValues = {
 const NewCharacterPage: ProtectedNextPage = () => {
   const router = useRouter()
 
-  const { mutate, isLoading, error } = trpc.useMutation(['character.create'], {
+  const { mutate, isLoading, error } = trpc.proxy.character.create.useMutation({
     onSuccess: ({ id }) => {
       router.push(`/characters/edit/${id}`)
     },

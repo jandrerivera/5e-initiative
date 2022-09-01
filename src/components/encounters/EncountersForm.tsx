@@ -14,15 +14,15 @@ import PaginationControls from '../PaginationControls'
 type TForm = EncountersWithActorsSchemaType
 
 type EncountersFormProps = {
-  formData?: TForm
+  formData?: DeepPartial<TForm>
   onSubmit: SubmitHandler<TForm>
   loading?: boolean
 }
 
 const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) => {
-  const { data, isLoading } = trpc.useQuery(['character.get-all-grouped-by-type'])
+  const { data, isLoading } = trpc.proxy.character.getAllGroupedByType.useQuery()
 
-  const { control, register, handleSubmit, watch, setValue } = useForm<TForm>({
+  const { control, register, handleSubmit, watch } = useForm<TForm>({
     defaultValues: formData,
   })
 
@@ -79,11 +79,11 @@ const EncountersForm = ({ formData, onSubmit, loading }: EncountersFormProps) =>
                   onClick={() => {
                     append({
                       characterId: character.id,
+                      character: character,
                       creatureId: null,
                       type: 'friendly',
                       initiative: null,
                       alias: null,
-                      character: character,
                       creature: null,
                     })
                   }}
@@ -182,10 +182,11 @@ type CreatureListProps = { fromSrd?: boolean; append: UseFieldArrayAppend<TForm>
 const CreatureList = ({ fromSrd = false, append }: CreatureListProps) => {
   const [page, setPage] = useState(0)
 
-  const { data, status, error } = trpc.useQuery([
-    'bestiary.get-all-paginated',
-    { fromSrd, page, limit: creaturesPerPage },
-  ])
+  const { data, status, error } = trpc.proxy.bestiary.getAllPaginated.useQuery({
+    fromSrd,
+    page,
+    limit: creaturesPerPage,
+  })
 
   if (status === 'error') return <>Error: {error.message}</>
   if (status === 'loading') return <>Loading...</>
@@ -204,12 +205,12 @@ const CreatureList = ({ fromSrd = false, append }: CreatureListProps) => {
               onClick={() =>
                 append({
                   creatureId: creature.id,
+                  creature: creature,
                   characterId: null,
                   initiative: null,
                   type: 'enemy',
                   alias: null,
                   character: null,
-                  creature: creature,
                 })
               }
             >

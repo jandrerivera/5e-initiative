@@ -1,9 +1,9 @@
-import { useRouter } from 'next/router';
-import { SubmitHandler } from 'react-hook-form';
-import CreatureForm from '../../components/bestiary/CreatureForm';
-import { NewCreatureWithJoinsSchemaType } from '../../schema/bestiary';
-import { trpc } from '../../utils/trpc';
-import { ProtectedNextPage } from '../_app';
+import { useRouter } from 'next/router'
+import { SubmitHandler } from 'react-hook-form'
+import CreatureForm from '../../components/bestiary/CreatureForm'
+import { NewCreatureWithJoinsSchemaType } from '../../schema/bestiary'
+import { trpc } from '../../utils/trpc'
+import { ProtectedNextPage } from '../_app'
 
 export const defaultValues = {
   hpMax: 0,
@@ -21,21 +21,21 @@ export const defaultValues = {
   wis: 10,
   cha: 10,
   fromSRD: false,
-};
+}
 
 const NewCharacterPage: ProtectedNextPage = () => {
-  const router = useRouter();
+  const router = useRouter()
 
-  const { mutate, isLoading, error } = trpc.useMutation(['bestiary.create'], {
+  const { mutate, isLoading, error } = trpc.proxy.bestiary.create.useMutation({
     onSuccess: ({ id }) => {
-      router.push(`/bestiary/edit/${id}`);
+      router.push(`/bestiary/edit/${id}`)
     },
-  });
+  })
 
   const onSubmit: SubmitHandler<NewCreatureWithJoinsSchemaType> = (data) => {
-    mutate(data);
-    console.log(data);
-  };
+    mutate(data)
+    console.log(data)
+  }
 
   return (
     <div>
@@ -44,8 +44,8 @@ const NewCharacterPage: ProtectedNextPage = () => {
 
       <CreatureForm formData={defaultValues} onSubmit={onSubmit} loading={isLoading} />
     </div>
-  );
-};
-export default NewCharacterPage;
+  )
+}
+export default NewCharacterPage
 
-NewCharacterPage.requireAuth = true;
+NewCharacterPage.requireAuth = true

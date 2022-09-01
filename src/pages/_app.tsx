@@ -1,24 +1,22 @@
 // src/pages/_app.tsx
-import type { NextPage } from 'next';
-import type { AppProps } from 'next/app';
+import type { NextPage } from 'next'
+import type { AppProps } from 'next/app'
 
-import { withTRPC } from '@trpc/next';
-import superjson from 'superjson';
-import type { AppRouter } from '../server/router/trpc';
-import { SessionProvider } from 'next-auth/react';
+import { SessionProvider } from 'next-auth/react'
 
-import Layout from '../components/Layout';
-import ProtectedRoute from '../components/ProtectedRoute';
+import Layout from '../components/Layout'
+import ProtectedRoute from '../components/ProtectedRoute'
 
-import '../styles/globals.css';
+import '../styles/globals.css'
+import { trpc } from '../utils/trpc'
 
 export type ProtectedNextPage = NextPage & {
-  requireAuth: boolean;
-};
+  requireAuth: boolean
+}
 
 type AppPropsWithLayout = AppProps & {
-  Component: ProtectedNextPage;
-};
+  Component: ProtectedNextPage
+}
 
 const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppPropsWithLayout) => {
   return (
@@ -34,37 +32,7 @@ const MyApp = ({ Component, pageProps: { session, ...pageProps } }: AppPropsWith
         )}
       </Layout>
     </SessionProvider>
-  );
-};
+  )
+}
 
-const getBaseUrl = () => {
-  if (typeof window !== 'undefined') {
-    return '';
-  }
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url
-
-  return `http://localhost:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
-};
-
-export default withTRPC<AppRouter>({
-  config({ ctx }) {
-    /**
-     * If you want to use SSR, you need to use the server's full URL
-     * @link https://trpc.io/docs/ssr
-     */
-    const url = `${getBaseUrl()}/api/trpc`;
-
-    return {
-      url,
-      transformer: superjson,
-      /**
-       * @link https://react-query.tanstack.com/reference/QueryClient
-       */
-      // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
-    };
-  },
-  /**
-   * @link https://trpc.io/docs/ssr
-   */
-  ssr: false,
-})(MyApp);
+export default trpc.withTRPC(MyApp)

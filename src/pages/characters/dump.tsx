@@ -1,7 +1,7 @@
 import { trpc } from '../../utils/trpc'
 
 const dump = () => {
-  const { data } = trpc.useQuery(['character.get-all'])
+  const { data } = trpc.proxy.character.getAll.useQuery()
 
   if (!data) return <></>
 

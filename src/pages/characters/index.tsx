@@ -4,8 +4,8 @@ import { ProtectedNextPage } from '../_app'
 import { trpc } from '../../utils/trpc'
 
 const CharactersList = () => {
-  const { data, isLoading, refetch } = trpc.useQuery(['character.get-all-grouped-by-type'])
-  const { mutate, error } = trpc.useMutation('character.delete', { onSuccess: () => refetch() })
+  const { data, isLoading, refetch } = trpc.proxy.character.getAllGroupedByType.useQuery()
+  const { mutate, error } = trpc.proxy.character.delete.useMutation({ onSuccess: () => refetch() })
 
   if (isLoading) return <>Loading...</>
   if (!data) return <>No Data</>

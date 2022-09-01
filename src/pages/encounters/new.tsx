@@ -6,17 +6,17 @@ import { trpc } from '../../utils/trpc'
 import { ProtectedNextPage } from '../_app'
 
 export const defaultValues = {
+  name: '',
   status: 'ready' as 'ready' | 'paused' | 'completed',
   currentRound: 0,
   currentTurn: 0,
-  friendlyActors: [],
-  enemyActors: [],
+  actors: [],
 }
 
 const NewEncountersPage: ProtectedNextPage = () => {
   const router = useRouter()
 
-  const { mutate, isLoading, error } = trpc.useMutation(['encounters.create'], {
+  const { mutate, isLoading, error } = trpc.proxy.encounters.create.useMutation({
     onSuccess: ({ id }) => {
       router.push(`/encounters/edit/${id}`)
     },
